@@ -1,128 +1,141 @@
-DentaCare - Mikroservisna Aplikacija za Stomatološke Ambulante
-Opis Problema
+# DentaCare - Mikroservisna Aplikacija za Stomatološke Ambulante
+
+## Opis Problema
+
 DentaCare je informacioni sistem za stomatološke ambulante koji omogućava efikasnu komunikaciju između pacijenata i stomatologa, kao i upravljanje terminima. Cilj sistema je da omogući:
 
-Jednostavno zakazivanje stomatoloških pregleda i tretmana
-Komunikaciju između pacijenata i stomatologa
-Upload i pregled RTG snimaka
-Edukaciju pacijenata kroz biblioteku stomatoloških saveta
+- Jednostavno zakazivanje stomatoloških pregleda i tretmana
+- Komunikaciju između pacijenata i stomatologa
+- Upload i pregled RTG snimaka
+- Edukaciju pacijenata kroz biblioteku stomatoloških saveta
 
-Uloge Korisnika
-Neulogovani Korisnici
+---
 
-Pregled edukativnih sadržaja o oralnoj higijeni
-Pregled osnovnih informacija o stomatološkim procedurama
-Pregled liste stomatologa i ambulanti (bez rasporeda termina)
+## Uloge Korisnika
 
-Pacijenti (Ulogovani)
+### Neulogovani Korisnici
 
-Registracija (ime, prezime, email, telefon, datum rođenja)
-Pregled dostupnih stomatologa i ambulanti
-Zakazivanje termina kod stomatologa (30/60 min slotovi)
-Pregled kalendara svojih zakazanih termina
-Chat sa stomatolozima (tekst, slike)
-Upload RTG snimaka
-Notifikacije i reminderi (dan/sat pre termina)
-Pregled i preuzimanje PDF potvrda o zakazanim terminima
-Ocenjivanje i pisanje recenzija stomatologa
+- Pregled edukativnih sadržaja o oralnoj higijeni
+- Pregled osnovnih informacija o stomatološkim procedurama
+- Pregled liste stomatologa i ambulanti (bez rasporeda termina)
 
-Stomatolozi (Ulogovani)
+### Pacijenti (Ulogovani)
 
-Registracija sa informacijama o ambulanti i specijalizaciji
-Profil sa specijalizacijom, slikom, certifikatima i radnim vremenom
-Upravljanje rasporedom dostupnih termina
-Pregled zakazanih termina
-Chat sa pacijentima
-Pregled upload-ovanih RTG snimaka od strane pacijenata
-Generisanje PDF izveštaja/potvrda o zakazanim terminima
-Pregled ocena i recenzija od strane pacijenata
+- Registracija (ime, prezime, email, telefon, datum rođenja)
+- Pregled dostupnih stomatologa i ambulanti
+- Zakazivanje termina kod stomatologa (30/60 min slotovi)
+- Pregled kalendara svojih zakazanih termina
+- Chat sa stomatolozima (tekst, slike)
+- Upload RTG snimaka
+- Notifikacije i reminderi (dan/sat pre termina)
+- Pregled i preuzimanje PDF potvrda o zakazanim terminima
+- Ocenjivanje i pisanje recenzija stomatologa
 
-Administratori
+### Stomatolozi (Ulogovani)
 
-Upravljanje korisnicima (blokiranje, brisanje naloga)
-Upravljanje edukativnim sadržajem
-Pregled stomatologa i ambulanti
-Odobravanje recenzija
-Pregled statistika sistema (broj korisnika, termina, ambulanti)
+- Registracija sa informacijama o ambulanti i specijalizaciji
+- Profil sa specijalizacijom, slikom, certifikatima i radnim vremenom
+- Upravljanje rasporedom dostupnih termina
+- Pregled zakazanih termina
+- Chat sa pacijentima
+- Pregled upload-ovanih RTG snimaka od strane pacijenata
+- Generisanje PDF izveštaja/potvrda o zakazanim terminima
+- Pregled ocena i recenzija od strane pacijenata
 
-Arhitektura Sistema
-Mikroservisi (Rust)
+### Administratori
+
+- Upravljanje korisnicima (blokiranje, brisanje naloga)
+- Upravljanje edukativnim sadržajem
+- Pregled stomatologa i ambulanti
+- Odobravanje recenzija
+- Pregled statistika sistema (broj korisnika, termina, ambulanti)
+
+---
+
+## Arhitektura Sistema
+
+### Mikroservisi (Rust)
+
 Sistem se sastoji od 4 glavna mikroservisa:
-1. auth_service (Autentifikacija i Autorizacija)
 
-Registracija i login korisnika (pacijenti, stomatolozi, administratori)
-JWT autentifikacija
-Upravljanje ulogama i permissions
-Refresh token mehanizam
-Profili korisnika (osnovne informacije, slike)
-Baza: PostgreSQL (korisnici, uloge, sesije, profili)
+#### 1. auth_service (Autentifikacija i Autorizacija)
 
-2. appointment_service (Upravljanje Terminima)
+- Registracija i login korisnika (pacijenti, stomatolozi, administratori)
+- JWT autentifikacija
+- Upravljanje ulogama i permissions
+- Refresh token mehanizam
+- Profili korisnika (osnovne informacije, slike)
+- **Baza:** PostgreSQL (korisnici, uloge, sesije, profili)
 
-CRUD operacije nad terminima
-Raspoređivanje slobodnih slotova (30/60 min)
-Upravljanje kalendarom stomatologa
-Provera dostupnosti i sprečavanje duplih rezervacija
-Upravljanje ambulantama (informacije, adresa, radno vreme)
-Baza: PostgreSQL (termini, rasporedi, dostupnost, ambulante)
+#### 2. appointment_service (Upravljanje Terminima)
 
-3. media_service (Upravljanje Medijskim Fajlovima)
+- CRUD operacije nad terminima
+- Raspoređivanje slobodnih slotova (30/60 min)
+- Upravljanje kalendarom stomatologa
+- Provera dostupnosti i sprečavanje duplih rezervacija
+- Upravljanje ambulantama (informacije, adresa, radno vreme)
+- **Baza:** PostgreSQL (termini, rasporedi, dostupnost, ambulante)
 
-Upload RTG snimaka
-Upload slika (profilne slike, slike za chat)
-Skladištenje i preuzimanje fajlova
-Generisanje PDF potvrda o zakazanim terminima
-Validacija i kompresija slika
-Baza: PostgreSQL (metadata o fajlovima - putanja, tip, vlasnik, datum)
-Storage: AWS S3 / MinIO / Lokalni file system
+#### 3. media_service (Upravljanje Medijskim Fajlovima)
 
-4. chat_notification_service (Chat i Notifikacije)
+- Upload RTG snimaka
+- Upload slika (profilne slike, slike za chat)
+- Skladištenje i preuzimanje fajlova
+- Generisanje PDF potvrda o zakazanim terminima
+- Validacija i kompresija slika
+- **Baza:** PostgreSQL (metadata o fajlovima - putanja, tip, vlasnik, datum)
+- **Storage:** AWS S3 / MinIO / Lokalni file system
 
-Real-time chat između pacijenata i stomatologa
-Sistem notifikacija i reminders
-Push notifikacije
-Email notifikacije (potvrda termina, reminderi)
-WebSocket komunikacija za real-time poruke
-Slanje slika u chat-u
-Baza: MongoDB (poruke, chat istorija, notifikacije)
+#### 4. chat_notification_service (Chat i Notifikacije)
 
-API Gateway
+- Real-time chat između pacijenata i stomatologa
+- Sistem notifikacija i reminders
+- Push notifikacije
+- Email notifikacije (potvrda termina, reminderi)
+- WebSocket komunikacija za real-time poruke
+- Slanje slika u chat-u
+- **Baza:** MongoDB (poruke, chat istorija, notifikacije)
 
-Centralna tačka pristupa za sve mikroservise
-Rutiranje zahteva ka odgovarajućim servisima
-Load balancing
-Rate limiting
-Authentication middleware (validacija JWT tokena)
-CORS konfiguracija
-Request/Response logging
-File upload proxy (za velike fajlove)
+### API Gateway
 
-Tehničke Specifikacije
-Backend
+- Centralna tačka pristupa za sve mikroservise
+- Rutiranje zahteva ka odgovarajućim servisima
+- Load balancing
+- Rate limiting
+- Authentication middleware (validacija JWT tokena)
+- CORS konfiguracija
+- Request/Response logging
+- File upload proxy (za velike fajlove)
 
-Jezik: Rust
-Framework: Axum / Actix-web
-Autentifikacija: JWT tokens (access + refresh)
-Komunikacija: REST API
-API Gateway: Rust (Axum)
-File Upload: Multipart form data handling
+---
 
-Baze Podataka
+## Tehničke Specifikacije
 
-Relacione (PostgreSQL): auth_service, appointment_service, media_service
-NoSQL (MongoDB): chat_notification_service
-Deployment: Docker kontejneri za sve baze
+### Backend
 
-Storage
+- **Jezik:** Rust
+- **Framework:** Axum / Actix-web
+- **Autentifikacija:** JWT tokens (access + refresh)
+- **Komunikacija:** REST API
+- **API Gateway:** Rust (Axum)
+- **File Upload:** Multipart form data handling
 
-RTG Snimci i Slike: AWS S3 / MinIO ili lokalni Docker volume
-PDF Fajlovi: Privremeno generisani, dostupni za download
+### Baze Podataka
 
-Frontend
+- **Relacione (PostgreSQL):** auth_service, appointment_service, media_service
+- **NoSQL (MongoDB):** chat_notification_service
+- **Deployment:** Docker kontejneri za sve baze
 
-Framework: Angular (najnovija verzija)
-State Management: NgRx / Signals
-Komunikacija: HttpClient sa REST API
-Real-time: WebSocket za chat
-UI Library: Angular Material / PrimeNG
-File Upload: Angular file upload komponente
+### Storage
+
+- **RTG Snimci i Slike:** AWS S3 / MinIO ili lokalni Docker volume
+- **PDF Fajlovi:** Privremeno generisani, dostupni za download
+
+### Frontend
+
+- **Framework:** Angular (najnovija verzija)
+- **State Management:** NgRx / Signals
+- **Komunikacija:** HttpClient sa REST API
+- **Real-time:** WebSocket za chat
+- **UI Library:** Angular Material / PrimeNG
+- **File Upload:** Angular file upload komponente
