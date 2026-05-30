@@ -1,0 +1,13 @@
+# Rust
+target/
+Cargo.lock
+
+# Environment
+.env
+
+# Uploads
+uploads/
+
+# IDE
+.idea/
+.vscode/

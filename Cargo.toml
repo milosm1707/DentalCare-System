@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "api_gateway",
+    "auth_service",
+    "appointment_service",
+    "media_service",
+    "chat_notification_service",
+]
+resolver = "2"

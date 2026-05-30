@@ -1,0 +1,70 @@
+services:
+  # PostgreSQL za auth_service
+  auth_db:
+    image: postgres:16
+    container_name: dentacare_auth_db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    networks:
+      - dentacare_network
+
+  # PostgreSQL za appointment_service
+  appointment_db:
+    image: postgres:16
+    container_name: dentacare_appointment_db
+    environment:
+      POSTGRES_DB: appointment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - appointment_db_data:/var/lib/postgresql/data
+    networks:
+      - dentacare_network
+
+  # PostgreSQL za media_service
+  media_db:
+    image: postgres:16
+    container_name: dentacare_media_db
+    environment:
+      POSTGRES_DB: media_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    volumes:
+      - media_db_data:/var/lib/postgresql/data
+    networks:
+      - dentacare_network
+
+  # MongoDB za chat_notification_service
+  chat_db:
+    image: mongo:7
+    container_name: dentacare_chat_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: chat_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - chat_db_data:/data/db
+    networks:
+      - dentacare_network
+
+volumes:
+  auth_db_data:
+  appointment_db_data:
+  media_db_data:
+  chat_db_data:
+
+networks:
+  dentacare_network:
+    driver: bridge
