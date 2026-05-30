@@ -122,7 +122,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/health", any(|| async { "API Gateway OK" }))
-        .route("/{*path}", any(proxy))
+        .fallback(any(proxy))
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
