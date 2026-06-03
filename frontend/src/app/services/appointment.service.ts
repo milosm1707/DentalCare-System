@@ -109,4 +109,10 @@ getDentistReviews(dentistId: string): Observable<Review[]> {
 getMyReviews(): Observable<Review[]> {
   return this.http.get<Review[]>(`${this.apiUrl}/reviews/my`);
 }
+getMyClinics(): Observable<Clinic[]> {
+  return this.http.get<Clinic[]>(`${this.apiUrl}/clinics/my`);
+}
+confirmAppointment(id: string): Observable<Appointment> {
+  return this.http.post<Appointment>(`${this.apiUrl}/appointments/${id}/confirm`, {});
+}
 }

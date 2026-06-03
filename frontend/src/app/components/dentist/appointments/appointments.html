@@ -44,6 +44,24 @@
           </div>
         </div>
       </mat-card-content>
+
+      <mat-card-actions>
+        <button
+          mat-raised-button color="primary"
+          *ngIf="apt.status === 'scheduled'"
+          (click)="confirm(apt.id)">
+          <mat-icon>check_circle</mat-icon>
+          Potvrdi termin
+        </button>
+        <button
+          mat-button color="warn"
+          *ngIf="apt.status === 'scheduled' || apt.status === 'confirmed'"
+          (click)="cancel(apt.id)">
+          <mat-icon>cancel</mat-icon>
+          Otkaži
+        </button>
+      </mat-card-actions>
+
     </mat-card>
   </div>
 </div>

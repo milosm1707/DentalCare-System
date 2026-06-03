@@ -12,7 +12,7 @@ use crate::{
     },
     AppState,
 };
-use crate::models::ChangePasswordRequest;
+use crate::models::{ChangePasswordRequest, DentistProfileRow, UpdateProfileRequest};
 
 pub async fn register(
     State(state): State<AppState>,
@@ -277,4 +277,102 @@ pub async fn change_password(
         .await?;
 
     Ok(Json(serde_json::json!({ "message": "Lozinka uspješno promijenjena" })))
+}
+
+pub async fn get_dentist_profile(
+    State(state): State<AppState>,
+    axum::extract::Path(user_id): axum::extract::Path<Uuid>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1 AND role = 'dentist' AND is_active = true"
+    )
+        .bind(user_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    let row = sqlx::query_as::<_, DentistProfileRow>(
+        "SELECT specialization, bio, clinic_name, clinic_address, working_hours_start::text, working_hours_end::text FROM dentist_profiles WHERE user_id = $1"
+    )
+        .bind(user_id)
+        .fetch_optional(&state.db)
+        .await?;
+
+    let result = serde_json::json!({
+        "id": user.id,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "phone": user.phone,
+        "specialization": row.as_ref().and_then(|p| p.specialization.as_ref()),
+        "bio": row.as_ref().and_then(|p| p.bio.as_ref()),
+        "clinic_name": row.as_ref().and_then(|p| p.clinic_name.as_ref()),
+        "clinic_address": row.as_ref().and_then(|p| p.clinic_address.as_ref()),
+        "working_hours_start": row.as_ref().and_then(|p| p.working_hours_start.as_ref()),
+        "working_hours_end": row.as_ref().and_then(|p| p.working_hours_end.as_ref()),
+    });
+
+    Ok(Json(result))
+}
+
+pub async fn update_dentist_profile(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Json(req): Json<UpdateProfileRequest>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    if claims.role != "dentist" {
+        return Err(AppError::Forbidden);
+    }
+
+    let user_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
+
+    sqlx::query(
+        "UPDATE users SET first_name = $1, last_name = $2, phone = $3, updated_at = NOW() WHERE id = $4"
+    )
+        .bind(&req.first_name)
+        .bind(&req.last_name)
+        .bind(&req.phone)
+        .bind(user_id)
+        .execute(&state.db)
+        .await?;
+
+    sqlx::query(
+        r#"INSERT INTO dentist_profiles (user_id, specialization, bio, clinic_name, clinic_address, working_hours_start, working_hours_end)
+           VALUES ($1, $2, $3, $4, $5, $6::time, $7::time)
+           ON CONFLICT (user_id) DO UPDATE SET
+               specialization = EXCLUDED.specialization,
+               bio = EXCLUDED.bio,
+               clinic_name = EXCLUDED.clinic_name,
+               clinic_address = EXCLUDED.clinic_address,
+               working_hours_start = EXCLUDED.working_hours_start,
+               working_hours_end = EXCLUDED.working_hours_end"#
+    )
+        .bind(user_id)
+        .bind(&req.specialization)
+        .bind(&req.bio)
+        .bind(&req.clinic_name)
+        .bind(&req.clinic_address)
+        .bind(&req.working_hours_start)
+        .bind(&req.working_hours_end)
+        .execute(&state.db)
+        .await?;
+
+    // Dohvati ažuriranog korisnika i vrati ga
+    let updated_user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1"
+    )
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await?;
+
+    Ok(Json(serde_json::json!({
+        "message": "Profil ažuriran",
+        "user": {
+            "id": updated_user.id,
+            "email": updated_user.email,
+            "role": format!("{:?}", updated_user.role).to_lowercase(),
+            "first_name": updated_user.first_name,
+            "last_name": updated_user.last_name
+        }
+    })))
 }

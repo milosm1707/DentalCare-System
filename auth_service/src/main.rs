@@ -4,6 +4,7 @@ use axum::{
 };
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
+use axum::routing::put;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
@@ -43,9 +44,10 @@ async fn main() {
 
     let protected_routes = Router::new()
         .route("/me", get(handlers::get_me))
-        .route("/change-password", post(handlers::change_password))
         .route("/users/search", get(handlers::search_users))
         .route("/users/:id", get(handlers::get_user_by_id))
+        .route("/change-password", post(handlers::change_password))
+        .route("/dentist-profile", put(handlers::update_dentist_profile))
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             auth_middleware::auth_middleware,
@@ -56,6 +58,7 @@ async fn main() {
         .route("/register", post(handlers::register))
         .route("/login", post(handlers::login))
         .route("/refresh", post(handlers::refresh_token))
+        .route("/users/:id/dentist-profile", get(handlers::get_dentist_profile))
         .merge(protected_routes)
         .with_state(state);
 

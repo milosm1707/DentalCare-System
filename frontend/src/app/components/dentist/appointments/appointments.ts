@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { forkJoin } from 'rxjs';
 import { AppointmentService, Appointment, Clinic } from '../../../services/appointment.service';
 import { AuthService } from '../../../services/auth.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface AppointmentWithDetails extends Appointment {
   patient_name?: string;
@@ -18,7 +19,7 @@ interface AppointmentWithDetails extends Appointment {
 @Component({
   selector: 'app-dentist-appointments',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatSnackBarModule],
   templateUrl: './appointments.html',
   styleUrl: './appointments.scss'
 })
@@ -29,7 +30,8 @@ export class Appointments implements OnInit {
   constructor(
     private appointmentService: AppointmentService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -86,4 +88,22 @@ export class Appointments implements OnInit {
     const map: any = { scheduled: 'primary', confirmed: 'accent', cancelled: 'warn', completed: '' };
     return map[status] || '';
   }
+  confirm(id: string): void {
+  this.appointmentService.confirmAppointment(id).subscribe({
+    next: () => {
+      this.snackBar.open('Termin potvrđen!', 'Zatvori', { duration: 3000 });
+      this.ngOnInit();
+    },
+    error: () => this.snackBar.open('Greška pri potvrdi', 'Zatvori', { duration: 3000 })
+  });
+}
+cancel(id: string): void {
+  this.appointmentService.cancelAppointment(id).subscribe({
+    next: () => {
+      this.snackBar.open('Termin otkazan', 'Zatvori', { duration: 3000 });
+      this.ngOnInit();
+    },
+    error: () => this.snackBar.open('Greška pri otkazivanju', 'Zatvori', { duration: 3000 })
+  });
+}
 }

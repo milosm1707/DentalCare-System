@@ -73,6 +73,11 @@ export const routes: Routes = [
                     import('./components/dentist/dashboard/dashboard').then(m => m.Dashboard)
             },
             {
+                path: 'profile',
+                loadComponent: () =>
+                    import('./components/dentist/profile/profile').then(m => m.DentistProfile)
+            } ,           
+            {
                 path: 'reviews',
                 loadComponent: () =>
                     import('./components/dentist/reviews/reviews').then(m => m.DentistReviews)

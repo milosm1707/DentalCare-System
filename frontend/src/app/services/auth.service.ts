@@ -18,6 +18,20 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface DentistProfileData {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  specialization?: string;
+  bio?: string;
+  clinic_name?: string;
+  clinic_address?: string;
+  working_hours_start?: string;
+  working_hours_end?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -86,5 +100,16 @@ export class AuthService {
     current_password: currentPassword,
     new_password: newPassword
   });
+}
+getDentistProfile(userId: string): Observable<DentistProfileData> {
+  return this.http.get<DentistProfileData>(`${this.apiUrl}/users/${userId}/dentist-profile`);
+}
+
+updateDentistProfile(data: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/dentist-profile`, data);
+}
+updateLocalUser(user: User): void {
+  localStorage.setItem('user', JSON.stringify(user));
+  this.currentUserSubject.next(user);
 }
 }

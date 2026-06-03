@@ -1,0 +1,141 @@
+<div class="profile-page">
+  <h1>Moj profil</h1>
+
+  <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+  <mat-tab-group *ngIf="!loading">
+
+    <!-- Tab 1: Osnovni podaci -->
+    <mat-tab label="Osnovni podaci">
+      <div class="tab-content">
+        <mat-card class="profile-card">
+          <mat-card-content>
+
+            <div class="avatar-section">
+              <div class="avatar-big">
+                {{ profile.first_name?.[0] }}{{ profile.last_name?.[0] }}
+              </div>
+              <div>
+                <h2>Dr. {{ profile.first_name }} {{ profile.last_name }}</h2>
+                <span class="role-badge">Stomatolog</span>
+                <p class="specialization-text" *ngIf="profile.specialization">
+                  {{ profile.specialization }}
+                </p>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Ime</mat-label>
+                <input matInput [(ngModel)]="profile.first_name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Prezime</mat-label>
+                <input matInput [(ngModel)]="profile.last_name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Telefon</mat-label>
+                <input matInput [(ngModel)]="profile.phone" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Specijalizacija</mat-label>
+                <mat-select [(ngModel)]="profile.specialization">
+                  <mat-option *ngFor="let s of specializations" [value]="s">{{ s }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Biografija</mat-label>
+              <textarea matInput [(ngModel)]="profile.bio" rows="4"
+                placeholder="Opišite vaše iskustvo i oblasti rada..."></textarea>
+            </mat-form-field>
+
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="saving">
+              {{ saving ? 'Čuvanje...' : 'Sačuvaj izmjene' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Tab 2: Ambulanta -->
+    <mat-tab label="Informacije o ambulanti">
+      <div class="tab-content">
+        <mat-card class="profile-card">
+          <mat-card-content>
+            <div class="form-grid">
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Naziv ambulante</mat-label>
+                <mat-icon matPrefix>local_hospital</mat-icon>
+                <input matInput [(ngModel)]="profile.clinic_name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Adresa</mat-label>
+                <mat-icon matPrefix>location_on</mat-icon>
+                <input matInput [(ngModel)]="profile.clinic_address" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Početak radnog vremena</mat-label>
+                <mat-icon matPrefix>schedule</mat-icon>
+                <input matInput [(ngModel)]="profile.working_hours_start" placeholder="08:00:00" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Kraj radnog vremena</mat-label>
+                <mat-icon matPrefix>schedule</mat-icon>
+                <input matInput [(ngModel)]="profile.working_hours_end" placeholder="16:00:00" />
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="saving">
+              {{ saving ? 'Čuvanje...' : 'Sačuvaj izmjene' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Tab 3: Promjena lozinke -->
+    <mat-tab label="Promjena lozinke">
+      <div class="tab-content">
+        <mat-card class="profile-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar color="primary">lock</mat-icon>
+            <mat-card-title>Promjena lozinke</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Trenutna lozinka</mat-label>
+              <input matInput type="password" [(ngModel)]="currentPassword" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nova lozinka</mat-label>
+              <input matInput type="password" [(ngModel)]="newPassword" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Potvrdite novu lozinku</mat-label>
+              <input matInput type="password" [(ngModel)]="confirmPassword" />
+            </mat-form-field>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="changePassword()" [disabled]="loadingPassword">
+              {{ loadingPassword ? 'Mijenjanje...' : 'Promijeni lozinku' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

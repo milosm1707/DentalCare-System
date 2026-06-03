@@ -74,7 +74,27 @@ pub struct Claims {
     pub exp: usize,
     pub iat: usize,
 }
-
+#[derive(Debug, sqlx::FromRow)]
+pub struct DentistProfileRow {
+    pub specialization: Option<String>,
+    pub bio: Option<String>,
+    pub clinic_name: Option<String>,
+    pub clinic_address: Option<String>,
+    pub working_hours_start: Option<String>,
+    pub working_hours_end: Option<String>,
+}
+#[derive(Debug, Deserialize)]
+pub struct UpdateProfileRequest {
+    pub first_name: String,
+    pub last_name: String,
+    pub phone: Option<String>,
+    pub specialization: Option<String>,
+    pub bio: Option<String>,
+    pub clinic_name: Option<String>,
+    pub clinic_address: Option<String>,
+    pub working_hours_start: Option<String>,
+    pub working_hours_end: Option<String>,
+}
 #[derive(Debug, Deserialize)]
 pub struct ChangePasswordRequest {
     pub current_password: String,

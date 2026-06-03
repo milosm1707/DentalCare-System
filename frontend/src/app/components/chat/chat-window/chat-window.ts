@@ -172,7 +172,30 @@ export class ChatWindow implements OnInit, OnDestroy {
   this.activeContact = contact;
   this.chatService.setActiveChatContact(contact.id);
 
-  // Označi kontakt kao pročitan
+  // Osvježi podatke o kontaktu
+  this.authService.getUserById(contact.id).subscribe({
+    next: (user) => {
+      const updatedContact: ChatContact = {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        unread: false
+      };
+
+      // Ažuriraj u listi kontakata
+      const idx = this.contacts.findIndex(c => c.id === contact.id);
+      if (idx !== -1) {
+        this.contacts[idx] = { ...updatedContact, unread: false };
+      }
+
+      this.activeContact = updatedContact;
+      this.saveContacts();
+      this.cdr.detectChanges();
+    }
+  });
+
+  // Označi kao pročitano
   const existing = this.contacts.find(c => c.id === contact.id);
   if (existing && existing.unread) {
     existing.unread = false;
@@ -180,7 +203,6 @@ export class ChatWindow implements OnInit, OnDestroy {
     this.chatService.decrementUnread();
   }
 
-  // Provjeri da li ima još unread kontakata
   const stillUnread = this.contacts.filter(c => c.unread).length;
   if (stillUnread === 0) {
     this.chatService.clearUnread();

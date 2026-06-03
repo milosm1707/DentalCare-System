@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import {Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,7 @@ import { AuthService } from '../../../services/auth.service';
   selector: 'app-dentists',
   standalone: true,
   imports: [
-    CommonModule, RouterLink, MatCardModule, MatButtonModule,
+    CommonModule, MatCardModule, MatButtonModule,
     MatIconModule, MatChipsModule, MatFormFieldModule,
     MatInputModule, FormsModule
   ],

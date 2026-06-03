@@ -52,14 +52,11 @@ export class Schedule implements OnInit {
   }
 
   loadClinics(): void {
-    this.appointmentService.getClinics().subscribe({
-      next: (data) => {
-        this.clinics = data;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.cdr.detectChanges();
-      }
+  this.appointmentService.getMyClinics().subscribe({
+    next: (data) => {
+      this.clinics = data;
+      this.cdr.detectChanges();
+    }
     });
   }
 

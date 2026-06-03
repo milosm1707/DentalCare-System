@@ -52,7 +52,55 @@ pub async fn get_clinics(
 
     Ok(Json(clinics))
 }
+pub async fn get_my_clinics(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+) -> Result<Json<Vec<Clinic>>, AppError> {
+    let dentist_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
 
+    let clinics = sqlx::query_as::<_, Clinic>(
+        "SELECT * FROM clinics WHERE dentist_id = $1 ORDER BY created_at DESC"
+    )
+        .bind(dentist_id)
+        .fetch_all(&state.db)
+        .await?;
+
+    Ok(Json(clinics))
+}
+
+pub async fn confirm_appointment(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Path(appointment_id): Path<Uuid>,
+) -> Result<Json<Appointment>, AppError> {
+    if claims.role != "dentist" {
+        return Err(AppError::Forbidden);
+    }
+
+    let dentist_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
+
+    let appointment = sqlx::query_as::<_, Appointment>(
+        "SELECT * FROM appointments WHERE id = $1 AND dentist_id = $2"
+    )
+        .bind(appointment_id)
+        .bind(dentist_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    if appointment.status != AppointmentStatus::Scheduled {
+        return Err(AppError::SlotUnavailable);
+    }
+
+    let updated = sqlx::query_as::<_, Appointment>(
+        "UPDATE appointments SET status = 'confirmed', updated_at = NOW() WHERE id = $1 RETURNING *"
+    )
+        .bind(appointment_id)
+        .fetch_one(&state.db)
+        .await?;
+
+    Ok(Json(updated))
+}
 // Kreiranje slobodnog slota (samo stomatolog)
 pub async fn create_slot(
     State(state): State<AppState>,

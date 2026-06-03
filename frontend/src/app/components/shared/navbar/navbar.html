@@ -39,20 +39,21 @@
     </button>
 
     <mat-menu #userMenu="matMenu">
-      <div class="user-info">
-        <p>{{ user.first_name }} {{ user.last_name }}</p>
-        <small>{{ user.email }}</small>
-      </div>
-      <button mat-menu-item routerLink="/profile">
-        <mat-icon>account_circle</mat-icon>
-        Moj profil
-      </button>
-      <mat-divider></mat-divider>
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        Odjavi se
-      </button>
-    </mat-menu>
+  <div class="user-info">
+    <p>{{ user.first_name }} {{ user.last_name }}</p>
+    <small>{{ user.email }}</small>
+  </div>
+  <button mat-menu-item
+    [routerLink]="user.role === 'dentist' ? '/dentist/profile' : '/profile'">
+    <mat-icon>account_circle</mat-icon>
+    Moj profil
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Odjavi se
+  </button>
+</mat-menu>
   </ng-container>
 
   <ng-template #guestLinks>
