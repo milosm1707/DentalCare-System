@@ -1,45 +1,94 @@
 <div class="page">
-    <div class="page-header">
-        <h1>Moji termini</h1>
-        <a mat-raised-button color="primary" routerLink="/patient/book">
-            <mat-icon>add</mat-icon> Zakaži novi
-        </a>
+  <div class="page-header">
+    <h1>Moji termini</h1>
+    <a mat-raised-button color="primary" routerLink="/patient/book">
+      <mat-icon>add</mat-icon> Zakaži novi
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+  <div *ngIf="!loading && appointments.length === 0" class="empty">
+    <mat-icon>event_busy</mat-icon>
+    <p>Nemate zakazanih termina</p>
+    <a mat-raised-button color="primary" routerLink="/patient/book">Zakaži termin</a>
+  </div>
+
+  <div class="list" *ngIf="!loading && appointments.length > 0">
+    <mat-card *ngFor="let apt of appointments" class="apt-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar color="primary">event</mat-icon>
+        <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
+        <mat-card-subtitle>{{ apt.start_time }} — {{ apt.duration === 'thirty' ? '30 min' : '60 min' }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-chip [color]="getStatusColor(apt.status)" selected>
+          {{ getStatusLabel(apt.status) }}
+        </mat-chip>
+
+        <div class="details">
+          <div class="detail-row" *ngIf="apt.dentist_name">
+            <mat-icon>person</mat-icon>
+            <span><strong>Stomatolog:</strong> Dr. {{ apt.dentist_name }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.dentist_email">
+            <mat-icon>email</mat-icon>
+            <span><strong>Email stomatologa:</strong> {{ apt.dentist_email }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.clinic_name">
+            <mat-icon>local_hospital</mat-icon>
+            <span><strong>Ambulanta:</strong> {{ apt.clinic_name }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.clinic_address">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ apt.clinic_address }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.notes">
+            <mat-icon>notes</mat-icon>
+            <span>{{ apt.notes }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="generatePdf(apt)">
+          <mat-icon>picture_as_pdf</mat-icon> PDF potvrda
+        </button>
+        <button
+          mat-button color="warn"
+          *ngIf="apt.status === 'scheduled'"
+          (click)="cancel(apt.id)">
+          <mat-icon>cancel</mat-icon> Otkaži
+        </button>
+      </mat-card-actions>
+      <!-- Review forma -->
+<div *ngIf="apt.status !== 'cancelled'">
+  <button mat-button color="accent" (click)="toggleReview(apt.id)">
+    <mat-icon>star</mat-icon>
+    {{ showReviewForm[apt.id] ? 'Otkaži' : 'Ostavi recenziju' }}
+  </button>
+
+  <div *ngIf="showReviewForm[apt.id]" class="review-form">
+    <p><strong>Ocjena:</strong></p>
+    <div class="stars">
+      <mat-icon
+        *ngFor="let star of [1,2,3,4,5]"
+        (click)="reviewRating[apt.id] = star"
+        [style.color]="star <= reviewRating[apt.id] ? '#f59e0b' : '#d1d5db'"
+        style="cursor:pointer;font-size:32px;width:32px;height:32px">
+        star
+      </mat-icon>
     </div>
-
-    <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
-
-    <div *ngIf="!loading && appointments.length === 0" class="empty">
-        <mat-icon>event_busy</mat-icon>
-        <p>Nemate zakazanih termina</p>
-        <a mat-raised-button color="primary" routerLink="/patient/book">Zakaži termin</a>
+    <mat-form-field appearance="outline" class="full-width" style="margin-top:12px">
+        <mat-label>Komentar (opciono)</mat-label>
+        <textarea matInput [(ngModel)]="reviewComment[apt.id]" rows="3"></textarea>
+        </mat-form-field>
+        <button mat-raised-button color="accent" (click)="submitReview(apt)">
+        Pošalji recenziju
+        </button>
     </div>
-
-    <div class="list" *ngIf="!loading && appointments.length > 0">
-        <mat-card *ngFor="let apt of appointments" class="apt-card">
-            <mat-card-header>
-                <mat-icon mat-card-avatar color="primary">event</mat-icon>
-                <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
-                <mat-card-subtitle>{{ apt.start_time }} — trajanje: {{ apt.duration === 'thirty' ? '30 min' : '60 min' }}</mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-                <mat-chip [color]="getStatusColor(apt.status)" selected>
-                    {{ getStatusLabel(apt.status) }}
-                </mat-chip>
-                <p *ngIf="apt.notes" class="notes">Napomena: {{ apt.notes }}</p>
-            </mat-card-content>
-
-            <mat-card-actions>
-                <button mat-button color="primary" (click)="generatePdf(apt.id)">
-                    <mat-icon>picture_as_pdf</mat-icon> PDF potvrda
-                </button>
-                <button
-                        mat-button color="warn"
-                        *ngIf="apt.status === 'scheduled'"
-                        (click)="cancel(apt.id)">
-                    <mat-icon>cancel</mat-icon> Otkaži
-                </button>
-            </mat-card-actions>
-        </mat-card>
     </div>
+    </mat-card>
+  </div>
 </div>

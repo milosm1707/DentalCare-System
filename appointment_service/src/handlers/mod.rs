@@ -12,6 +12,7 @@ use crate::{
     },
     AppState,
 };
+use crate::models::{CreateReviewRequest, Review};
 
 // Kreiranje ambulante (samo stomatolog)
 pub async fn create_clinic(
@@ -92,6 +93,132 @@ pub async fn get_available_slots(
         .await?;
 
     Ok(Json(slots))
+}
+
+pub async fn create_review(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Json(req): Json<CreateReviewRequest>,
+) -> Result<Json<Review>, AppError> {
+    if claims.role != "patient" {
+        return Err(AppError::Forbidden);
+    }
+
+    if req.rating < 1 || req.rating > 5 {
+        return Err(AppError::SlotUnavailable);
+    }
+
+    let patient_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
+
+    let review = sqlx::query_as::<_, Review>(
+        r#"INSERT INTO reviews (patient_id, dentist_id, appointment_id, rating, comment)
+           VALUES ($1, $2, $3, $4, $5) RETURNING *"#,
+    )
+        .bind(patient_id)
+        .bind(req.dentist_id)
+        .bind(req.appointment_id)
+        .bind(req.rating)
+        .bind(&req.comment)
+        .fetch_one(&state.db)
+        .await?;
+
+    Ok(Json(review))
+}
+
+pub async fn get_dentist_reviews(
+    State(state): State<AppState>,
+    Path(dentist_id): Path<Uuid>,
+) -> Result<Json<Vec<Review>>, AppError> {
+    let reviews = sqlx::query_as::<_, Review>(
+        "SELECT * FROM reviews WHERE dentist_id = $1 AND status = 'approved' ORDER BY created_at DESC"
+    )
+        .bind(dentist_id)
+        .fetch_all(&state.db)
+        .await?;
+
+    Ok(Json(reviews))
+}
+
+pub async fn get_my_reviews(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+) -> Result<Json<Vec<Review>>, AppError> {
+    let user_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
+
+    let reviews = if claims.role == "patient" {
+        sqlx::query_as::<_, Review>(
+            "SELECT * FROM reviews WHERE patient_id = $1 ORDER BY created_at DESC"
+        )
+            .bind(user_id)
+            .fetch_all(&state.db)
+            .await?
+    } else {
+        sqlx::query_as::<_, Review>(
+            "SELECT * FROM reviews WHERE dentist_id = $1 ORDER BY created_at DESC"
+        )
+            .bind(user_id)
+            .fetch_all(&state.db)
+            .await?
+    };
+
+    Ok(Json(reviews))
+}
+
+pub async fn get_all_reviews_admin(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+) -> Result<Json<Vec<Review>>, AppError> {
+    if claims.role != "admin" {
+        return Err(AppError::Forbidden);
+    }
+
+    let reviews = sqlx::query_as::<_, Review>(
+        "SELECT * FROM reviews WHERE status = 'pending' ORDER BY created_at DESC"
+    )
+        .fetch_all(&state.db)
+        .await?;
+
+    Ok(Json(reviews))
+}
+
+pub async fn approve_review(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Path(review_id): Path<Uuid>,
+) -> Result<Json<Review>, AppError> {
+    if claims.role != "admin" {
+        return Err(AppError::Forbidden);
+    }
+
+    let review = sqlx::query_as::<_, Review>(
+        "UPDATE reviews SET status = 'approved', updated_at = NOW() WHERE id = $1 RETURNING *"
+    )
+        .bind(review_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    Ok(Json(review))
+}
+
+pub async fn reject_review(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Path(review_id): Path<Uuid>,
+) -> Result<Json<Review>, AppError> {
+    if claims.role != "admin" {
+        return Err(AppError::Forbidden);
+    }
+
+    let review = sqlx::query_as::<_, Review>(
+        "UPDATE reviews SET status = 'rejected', updated_at = NOW() WHERE id = $1 RETURNING *"
+    )
+        .bind(review_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    Ok(Json(review))
 }
 
 // Zakazivanje termina (samo pacijent)

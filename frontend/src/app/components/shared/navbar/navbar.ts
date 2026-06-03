@@ -8,13 +8,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { AuthService, User } from '../../../services/auth.service';
 import { ChatService } from '../../../services/chat.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [
     CommonModule, RouterLink, MatToolbarModule, MatButtonModule,
-    MatIconModule, MatMenuModule, MatBadgeModule
+    MatIconModule, MatMenuModule, MatBadgeModule,MatDividerModule
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'

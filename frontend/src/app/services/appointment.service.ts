@@ -36,6 +36,24 @@ export interface Appointment {
   duration: string;
 }
 
+export interface AppointmentDetails {
+  appointment: Appointment;
+  clinic: Clinic;
+  dentist_email: string;
+  dentist_name: string;
+}
+
+export interface Review {
+  id: string;
+  patient_id: string;
+  dentist_id: string;
+  appointment_id?: string;
+  rating: number;
+  comment?: string;
+  status: string;
+  created_at: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,4 +92,21 @@ export class AppointmentService {
   cancelAppointment(id: string): Observable<Appointment> {
     return this.http.delete<Appointment>(`${this.apiUrl}/appointments/${id}/cancel`);
   }
+
+  createReview(dentistId: string, appointmentId: string | null, rating: number, comment: string): Observable<Review> {
+  return this.http.post<Review>(`${this.apiUrl}/reviews`, {
+    dentist_id: dentistId,
+    appointment_id: appointmentId,
+    rating,
+    comment
+  });
+}
+
+getDentistReviews(dentistId: string): Observable<Review[]> {
+  return this.http.get<Review[]>(`${this.apiUrl}/reviews/dentist/${dentistId}`);
+}
+
+getMyReviews(): Observable<Review[]> {
+  return this.http.get<Review[]>(`${this.apiUrl}/reviews/my`);
+}
 }

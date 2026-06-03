@@ -3,20 +3,27 @@
 
   <span class="spacer"></span>
 
+  <!-- Linkovi vidljivi svima -->
+  <a mat-button routerLink="/dentists">Stomatolozi</a>
+  <a mat-button routerLink="/education">Edukacija</a>
+
   <ng-container *ngIf="user; else guestLinks">
     <ng-container *ngIf="isPatient">
       <a mat-button routerLink="/patient/dashboard">Dashboard</a>
       <a mat-button routerLink="/patient/appointments">Moji termini</a>
       <a mat-button routerLink="/patient/book">Zakaži termin</a>
+      <a mat-button routerLink="/patient/xray">RTG snimci</a>
     </ng-container>
 
     <ng-container *ngIf="isDentist">
       <a mat-button routerLink="/dentist/dashboard">Dashboard</a>
       <a mat-button routerLink="/dentist/appointments">Termini</a>
       <a mat-button routerLink="/dentist/schedule">Raspored</a>
+      <a mat-button routerLink="/dentist/xray">RTG snimci</a>
+      <a mat-button routerLink="/dentist/reviews">Recenzije</a>
+
     </ng-container>
 
-    <!-- Chat link sa badge-om -->
     <a mat-button routerLink="/chat" class="chat-link">
       <mat-icon
         [matBadge]="unreadCount > 0 ? unreadCount : null"
@@ -36,6 +43,11 @@
         <p>{{ user.first_name }} {{ user.last_name }}</p>
         <small>{{ user.email }}</small>
       </div>
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>account_circle</mat-icon>
+        Moj profil
+      </button>
+      <mat-divider></mat-divider>
       <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
         Odjavi se

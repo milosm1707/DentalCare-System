@@ -1,0 +1,50 @@
+<div class="education-page">
+  <div class="page-header">
+    <h1>Edukativni sadržaji</h1>
+    <p>Savjeti i informacije za zdravlje vaše usne šupljine</p>
+  </div>
+
+  <div class="categories">
+    <button
+      *ngFor="let cat of categories"
+      mat-stroked-button
+      [class.active]="selectedCategory === cat"
+      (click)="selectCategory(cat)">
+      {{ cat }}
+    </button>
+  </div>
+
+  <div class="articles-grid">
+    <mat-expansion-panel
+      *ngFor="let article of filteredArticles"
+      class="article-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="article-icon">{{ article.icon }}</mat-icon>
+          {{ article.title }}
+        </mat-panel-title>
+        <mat-panel-description>
+          <span class="category-tag">{{ article.category }}</span>
+          {{ article.summary }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="article-content">
+        <ul>
+          <li *ngFor="let point of article.content">{{ point }}</li>
+        </ul>
+      </div>
+    </mat-expansion-panel>
+  </div>
+
+  <div class="cta-section">
+    <mat-card class="cta-card">
+      <mat-icon>calendar_today</mat-icon>
+      <h3>Spremi se za pregled?</h3>
+      <p>Zakažite termin kod jednog od naših stomatologa već danas.</p>
+      <a mat-raised-button color="primary" routerLink="/register">
+        Registrujte se i zakažite
+      </a>
+    </mat-card>
+  </div>
+</div>

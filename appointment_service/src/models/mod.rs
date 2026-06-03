@@ -14,6 +14,36 @@ pub enum AppointmentStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Type, Clone, PartialEq)]
+#[sqlx(type_name = "review_status", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
+pub enum ReviewStatus {
+    Pending,
+    Approved,
+    Rejected,
+}
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+pub struct Review {
+    pub id: Uuid,
+    pub patient_id: Uuid,
+    pub dentist_id: Uuid,
+    pub appointment_id: Option<Uuid>,
+    pub rating: i32,
+    pub comment: Option<String>,
+    pub status: ReviewStatus,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateReviewRequest {
+    pub dentist_id: Uuid,
+    pub appointment_id: Option<Uuid>,
+    pub rating: i32,
+    pub comment: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Type, Clone, PartialEq)]
 #[sqlx(type_name = "slot_duration", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum SlotDuration {

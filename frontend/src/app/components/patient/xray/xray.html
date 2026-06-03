@@ -1,0 +1,85 @@
+<div class="xray-page">
+  <div class="page-header">
+    <h1>RTG snimci</h1>
+    <p>Uploadujte i pregledajte vaše RTG snimke</p>
+  </div>
+
+  <!-- Upload zona -->
+  <mat-card
+    class="upload-zone"
+    [class.drag-over]="dragOver"
+    (drop)="onDrop($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()">
+
+    <mat-card-content>
+      <div class="upload-content">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3>Prevucite RTG snimak ovdje</h3>
+        <p>ili kliknite da odaberete fajl</p>
+        <small>Podržani formati: JPG, PNG, WEBP, PDF — Maks. 10MB</small>
+
+        <div class="upload-actions">
+          <input
+            type="file"
+            #fileInput
+            hidden
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            (change)="onFileSelected($event)" />
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="fileInput.click()"
+            [disabled]="uploading">
+            <mat-icon>attach_file</mat-icon>
+            {{ uploading ? 'Uploading...' : 'Odaberi fajl' }}
+          </button>
+        </div>
+
+        <mat-progress-bar
+          *ngIf="uploading"
+          mode="indeterminate"
+          class="progress">
+        </mat-progress-bar>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lista fajlova -->
+  <div class="section">
+    <h2>Moji fajlovi</h2>
+
+    <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+    <div *ngIf="!loading && files.length === 0" class="empty">
+      <mat-icon>folder_open</mat-icon>
+      <p>Nemate uploadovanih fajlova</p>
+    </div>
+
+    <div class="files-grid" *ngIf="!loading && files.length > 0">
+      <mat-card *ngFor="let file of files" class="file-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar [color]="file.media_type === 'xray' ? 'primary' : 'accent'">
+            {{ getFileIcon(file.media_type) }}
+          </mat-icon>
+          <mat-card-title>{{ file.file_name }}</mat-card-title>
+          <mat-card-subtitle>{{ formatDate(file.created_at) }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="file-meta">
+            <mat-chip>{{ getFileTypeLabel(file.media_type) }}</mat-chip>
+            <span class="file-size">{{ formatSize(file.file_size) }}</span>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="downloadFile(file)">
+            <mat-icon>download</mat-icon>
+            Preuzmi
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

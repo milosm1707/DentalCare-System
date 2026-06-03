@@ -43,6 +43,7 @@ async fn main() {
 
     let protected_routes = Router::new()
         .route("/me", get(handlers::get_me))
+        .route("/change-password", post(handlers::change_password))
         .route("/users/search", get(handlers::search_users))
         .route("/users/:id", get(handlers::get_user_by_id))
         .layer(axum::middleware::from_fn_with_state(

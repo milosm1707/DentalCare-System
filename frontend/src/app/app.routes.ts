@@ -20,6 +20,22 @@ export const routes: Routes = [
             import('./components/auth/register/register').then(m => m.Register)
     },
     {
+        path: 'dentists',
+        loadComponent: () =>
+            import('./components/shared/dentists/dentists').then(m => m.Dentists)
+    },
+    {
+        path: 'education',
+        loadComponent: () =>
+            import('./components/shared/education/education').then(m => m.Education)
+    },
+    {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./components/shared/profile/profile').then(m => m.Profile)
+    },
+    {
         path: 'patient',
         canActivate: [authGuard, roleGuard],
         data: { role: 'patient' },
@@ -28,6 +44,11 @@ export const routes: Routes = [
                 path: 'dashboard',
                 loadComponent: () =>
                     import('./components/patient/dashboard/dashboard').then(m => m.Dashboard)
+            },
+            {
+                path: 'xray',
+                loadComponent: () =>
+                    import('./components/patient/xray/xray').then(m => m.Xray)
             },
             {
                 path: 'appointments',
@@ -50,6 +71,16 @@ export const routes: Routes = [
                 path: 'dashboard',
                 loadComponent: () =>
                     import('./components/dentist/dashboard/dashboard').then(m => m.Dashboard)
+            },
+            {
+                path: 'reviews',
+                loadComponent: () =>
+                    import('./components/dentist/reviews/reviews').then(m => m.DentistReviews)
+            },
+            {
+                path: 'xray',
+                loadComponent: () =>
+                    import('./components/dentist/xray/xray').then(m => m.DentistXray)
             },
             {
                 path: 'schedule',

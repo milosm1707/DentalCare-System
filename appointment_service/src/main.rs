@@ -71,10 +71,15 @@ async fn main() {
     let protected = Router::new()
         .route("/clinics", post(handlers::create_clinic))
         .route("/slots", post(handlers::create_slot))
-        .route("/slots/:clinic_id", get(handlers::get_available_slots))
+        .route("/slots/:dentist_id", get(handlers::get_available_slots))
         .route("/appointments", post(handlers::book_appointment))
         .route("/appointments/my", get(handlers::get_my_appointments))
         .route("/appointments/:id/cancel", delete(handlers::cancel_appointment))
+        .route("/reviews", post(handlers::create_review))
+        .route("/reviews/my", get(handlers::get_my_reviews))
+        .route("/reviews/admin", get(handlers::get_all_reviews_admin))
+        .route("/reviews/:id/approve", post(handlers::approve_review))
+        .route("/reviews/:id/reject", post(handlers::reject_review))
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             auth_middleware,
@@ -83,6 +88,7 @@ async fn main() {
     let app = Router::new()
         .route("/health", get(|| async { "OK" }))
         .route("/clinics", get(handlers::get_clinics))
+        .route("/reviews/dentist/:dentist_id", get(handlers::get_dentist_reviews))
         .merge(protected)
         .with_state(state);
 

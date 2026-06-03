@@ -1,0 +1,55 @@
+<div class="dentists-page">
+  <div class="page-header">
+    <h1>Stomatolozi i ambulante</h1>
+    <p>Pronađite stomatologa u vašoj blizini</p>
+  </div>
+
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Pretražite po nazivu ili adresi</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchQuery" (input)="onSearch()" />
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Učitavanje...</p>
+  </div>
+
+  <div *ngIf="!loading && filtered.length === 0" class="empty">
+    <mat-icon>search_off</mat-icon>
+    <p>Nema rezultata za "{{ searchQuery }}"</p>
+  </div>
+
+  <div class="clinics-grid" *ngIf="!loading">
+    <mat-card *ngFor="let clinic of filtered" class="clinic-card">
+      <mat-card-header>
+        <div mat-card-avatar class="clinic-avatar">
+          <mat-icon>local_hospital</mat-icon>
+        </div>
+        <mat-card-title>{{ clinic.name }}</mat-card-title>
+        <mat-card-subtitle>{{ clinic.address }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="clinic-info">
+          <div class="info-row">
+            <mat-icon>schedule</mat-icon>
+            <span>Radno vrijeme: {{ clinic.working_hours_start }} - {{ clinic.working_hours_end }}</span>
+          </div>
+          <div class="info-row" *ngIf="clinic.phone">
+            <mat-icon>phone</mat-icon>
+            <span>{{ clinic.phone }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="bookAppointment()">
+            <mat-icon>calendar_today</mat-icon>
+            Zakaži termin
+        </button>
+    </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

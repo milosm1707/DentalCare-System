@@ -1,0 +1,38 @@
+<div class="reviews-page">
+  <div class="page-header">
+    <h1>Moje recenzije</h1>
+    <div class="average" *ngIf="averageRating > 0">
+      <mat-icon style="color:#f59e0b">star</mat-icon>
+      <span>{{ averageRating.toFixed(1) }} / 5.0</span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+  <div *ngIf="!loading && reviews.length === 0" class="empty">
+    <mat-icon>star_border</mat-icon>
+    <p>Nemate recenzija</p>
+  </div>
+
+  <div class="reviews-list" *ngIf="!loading && reviews.length > 0">
+    <mat-card *ngFor="let review of reviews" class="review-card">
+      <mat-card-content>
+        <div class="review-header">
+          <div class="stars">
+            <mat-icon *ngFor="let s of getStars(review.rating)" style="color:#f59e0b">star</mat-icon>
+            <mat-icon *ngFor="let s of getEmptyStars(review.rating)" style="color:#d1d5db">star</mat-icon>
+          </div>
+          <mat-chip [color]="getStatusColor(review.status)" selected>
+            {{ getStatusLabel(review.status) }}
+          </mat-chip>
+        </div>
+
+        <p *ngIf="review.comment" class="comment">"{{ review.comment }}"</p>
+
+        <small class="date">
+          {{ review.created_at | date:'dd.MM.yyyy' }}
+        </small>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

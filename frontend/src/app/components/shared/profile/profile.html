@@ -1,0 +1,92 @@
+<div class="profile-page">
+  <h1>Moj profil</h1>
+
+  <mat-tab-group>
+
+    <mat-tab label="Osnovni podaci">
+      <div class="tab-content">
+        <mat-card class="info-card" *ngIf="user">
+          <mat-card-content>
+            <div class="avatar-section">
+              <div class="avatar-big">
+                {{ user.first_name[0] }}{{ user.last_name[0] }}
+              </div>
+              <div class="user-name">
+                <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                <span class="role-badge">{{ getRoleLabel(user.role) }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>email</mat-icon>
+                <div>
+                  <label>Email adresa</label>
+                  <p>{{ user.email }}</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <mat-icon>badge</mat-icon>
+                <div>
+                  <label>Tip naloga</label>
+                  <p>{{ getRoleLabel(user.role) }}</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <mat-icon>fingerprint</mat-icon>
+                <div>
+                  <label>ID korisnika</label>
+                  <p class="id-text">{{ user.id }}</p>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Promjena lozinke">
+      <div class="tab-content">
+        <mat-card class="password-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar color="primary">lock</mat-icon>
+            <mat-card-title>Promjena lozinke</mat-card-title>
+            <mat-card-subtitle>Unesite trenutnu i novu lozinku</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Trenutna lozinka</mat-label>
+              <input matInput type="password" [(ngModel)]="currentPassword" />
+              <mat-icon matSuffix>lock_outline</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nova lozinka</mat-label>
+              <input matInput type="password" [(ngModel)]="newPassword" />
+              <mat-icon matSuffix>lock</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Potvrdite novu lozinku</mat-label>
+              <input matInput type="password" [(ngModel)]="confirmPassword" />
+              <mat-icon matSuffix>lock</mat-icon>
+            </mat-form-field>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button
+              mat-raised-button color="primary"
+              (click)="changePassword()"
+              [disabled]="loadingPassword">
+              {{ loadingPassword ? 'Mijenjanje...' : 'Promijeni lozinku' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

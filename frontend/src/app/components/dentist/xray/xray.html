@@ -1,0 +1,78 @@
+<div class="xray-page">
+  <div class="page-header">
+    <h1>RTG snimci pacijenata</h1>
+    <p>Pregled RTG snimaka vaših pacijenata</p>
+  </div>
+
+  <!-- Pretraga pacijenta -->
+  <mat-card class="search-card">
+    <mat-card-content>
+      <h3>Pronađite pacijenta</h3>
+      <div class="search-box">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Pretražite po imenu ili emailu</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [(ngModel)]="searchQuery" (input)="onSearch()"
+            placeholder="Ime, prezime ili email pacijenta" />
+        </mat-form-field>
+      </div>
+
+      <!-- Rezultati pretrage -->
+      <div class="search-results" *ngIf="searchResults.length > 0">
+        <div
+          *ngFor="let user of searchResults"
+          class="search-result-item"
+          (click)="loadPatientFiles(user)">
+          <div class="avatar">{{ user.first_name[0] }}{{ user.last_name[0] }}</div>
+          <div class="info">
+            <span class="name">{{ user.first_name }} {{ user.last_name }}</span>
+            <span class="email">{{ user.email }}</span>
+          </div>
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+  <div *ngIf="!loading && patients.length === 0" class="empty">
+    <mat-icon>folder_open</mat-icon>
+    <p>Nema RTG snimaka — pretražite pacijenta gore</p>
+  </div>
+
+  <div class="patients-list" *ngIf="patients.length > 0">
+    <mat-card *ngFor="let patient of patients" class="patient-card">
+      <mat-card-header (click)="toggleExpand(patient)" class="clickable">
+        <div mat-card-avatar class="patient-avatar">
+          {{ patient.patient_name[0] }}
+        </div>
+        <mat-card-title>{{ patient.patient_name }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ patient.patient_email }} —
+          {{ patient.files.length }} snimak(a)
+        </mat-card-subtitle>
+        <mat-icon class="expand-icon">
+          {{ patient.expanded ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+      </mat-card-header>
+
+      <mat-card-content *ngIf="patient.expanded">
+        <div class="files-grid">
+          <div *ngFor="let file of patient.files" class="file-item">
+            <div class="file-info">
+              <mat-icon color="primary">image</mat-icon>
+              <div>
+                <p class="file-name">{{ file.file_name }}</p>
+                <small>{{ formatDate(file.created_at) }} — {{ formatSize(file.file_size) }}</small>
+              </div>
+            </div>
+            <button mat-icon-button color="primary" (click)="downloadFile(file)" title="Preuzmi">
+              <mat-icon>download</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -74,3 +74,9 @@ pub struct Claims {
     pub exp: usize,
     pub iat: usize,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ChangePasswordRequest {
+    pub current_password: String,
+    pub new_password: String,
+}

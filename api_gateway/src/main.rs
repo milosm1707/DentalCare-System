@@ -38,6 +38,8 @@ async fn proxy(
         format!("{}{}", state.config.appointment_service_url, path)
     } else if path.starts_with("/upload") || path.starts_with("/files") || path.starts_with("/pdf") {
         format!("{}{}", state.config.media_service_url, path)
+    } else if path.starts_with("/appointments") || path.starts_with("/clinics") || path.starts_with("/slots") || path.starts_with("/reviews") {
+        format!("{}{}", state.config.appointment_service_url, path)
     } else if path.starts_with("/messages") || path.starts_with("/notifications") || path.starts_with("/ws") {
         format!("{}{}", state.config.chat_service_url, path)
     } else {

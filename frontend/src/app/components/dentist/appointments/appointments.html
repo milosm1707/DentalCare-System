@@ -1,26 +1,49 @@
 <div class="page">
-    <h1>Termini pacijenata</h1>
+  <h1>Termini pacijenata</h1>
 
-    <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+  <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
 
-    <div *ngIf="!loading && appointments.length === 0" class="empty">
-        <mat-icon>event_busy</mat-icon>
-        <p>Nema zakazanih termina</p>
-    </div>
+  <div *ngIf="!loading && appointments.length === 0" class="empty">
+    <mat-icon>event_busy</mat-icon>
+    <p>Nema zakazanih termina</p>
+  </div>
 
-    <div class="list" *ngIf="!loading && appointments.length > 0">
-        <mat-card *ngFor="let apt of appointments" class="apt-card">
-            <mat-card-header>
-                <mat-icon mat-card-avatar color="primary">person</mat-icon>
-                <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
-                <mat-card-subtitle>{{ apt.start_time }} — {{ apt.duration === 'thirty' ? '30 min' : '60 min' }}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <mat-chip [color]="getStatusColor(apt.status)" selected>
-                    {{ getStatusLabel(apt.status) }}
-                </mat-chip>
-                <p *ngIf="apt.notes" class="notes">Napomena: {{ apt.notes }}</p>
-            </mat-card-content>
-        </mat-card>
-    </div>
+  <div class="list" *ngIf="!loading && appointments.length > 0">
+    <mat-card *ngFor="let apt of appointments" class="apt-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar color="primary">person</mat-icon>
+        <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
+        <mat-card-subtitle>{{ apt.start_time }} — {{ apt.duration === 'thirty' ? '30 min' : '60 min' }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-chip [color]="getStatusColor(apt.status)" selected>
+          {{ getStatusLabel(apt.status) }}
+        </mat-chip>
+
+        <div class="details">
+          <div class="detail-row" *ngIf="apt.patient_name">
+            <mat-icon>person</mat-icon>
+            <span><strong>Pacijent:</strong> {{ apt.patient_name }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.patient_email">
+            <mat-icon>email</mat-icon>
+            <span><strong>Email pacijenta:</strong> {{ apt.patient_email }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.clinic_name">
+            <mat-icon>local_hospital</mat-icon>
+            <span><strong>Ambulanta:</strong> {{ apt.clinic_name }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.clinic_address">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ apt.clinic_address }}</span>
+          </div>
+          <div class="detail-row" *ngIf="apt.notes">
+            <mat-icon>notes</mat-icon>
+            <span>{{ apt.notes }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

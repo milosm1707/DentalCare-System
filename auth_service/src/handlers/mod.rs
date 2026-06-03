@@ -12,6 +12,7 @@ use crate::{
     },
     AppState,
 };
+use crate::models::ChangePasswordRequest;
 
 pub async fn register(
     State(state): State<AppState>,
@@ -241,4 +242,39 @@ pub async fn search_users(
         first_name: u.first_name,
         last_name: u.last_name,
     }).collect()))
+}
+pub async fn change_password(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    Json(req): Json<ChangePasswordRequest>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let user_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
+
+    let user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1"
+    )
+        .bind(user_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    let valid = verify(&req.current_password, &user.password_hash)
+        .map_err(|_| AppError::InternalError)?;
+
+    if !valid {
+        return Err(AppError::InvalidCredentials);
+    }
+
+    let new_hash = hash(&req.new_password, DEFAULT_COST)
+        .map_err(|_| AppError::InternalError)?;
+
+    sqlx::query(
+        "UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2"
+    )
+        .bind(&new_hash)
+        .bind(user_id)
+        .execute(&state.db)
+        .await?;
+
+    Ok(Json(serde_json::json!({ "message": "Lozinka uspješno promijenjena" })))
 }

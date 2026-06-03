@@ -40,3 +40,42 @@
 }
 
 .loading { text-align: center; padding: 48px; color: #666; }
+.details {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #3f51b5;
+    flex-shrink: 0;
+  }
+}
+.review-form {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 8px;
+
+  .stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+}
+
+.full-width {
+  width: 100%;
+  display: block;
+}

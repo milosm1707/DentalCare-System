@@ -23,10 +23,10 @@ export class MediaService {
 
   constructor(private http: HttpClient) {}
 
-  uploadFile(file: File): Observable<MediaFile> {
+  uploadFile(file: File, type: string = 'xray'): Observable<MediaFile> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<MediaFile>(`${this.apiUrl}/upload`, formData);
+    return this.http.post<MediaFile>(`${this.apiUrl}/upload?type=${type}`, formData);
   }
 
   getMyFiles(): Observable<MediaFile[]> {
@@ -39,7 +39,10 @@ export class MediaService {
     });
   }
 
-  generatePdf(appointmentId: string): Observable<MediaFile> {
-    return this.http.post<MediaFile>(`${this.apiUrl}/pdf/${appointmentId}`, {});
-  }
+  generatePdf(appointmentId: string, data: any): Observable<MediaFile> {
+  return this.http.post<MediaFile>(`${this.apiUrl}/pdf/${appointmentId}`, data);
+}
+getPatientFiles(patientId: string): Observable<MediaFile[]> {
+  return this.http.get<MediaFile[]>(`${this.apiUrl}/files/patient/${patientId}`);
+}
 }

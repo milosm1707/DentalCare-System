@@ -81,4 +81,10 @@ export class AuthService {
   searchUsers(query: string): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/search?q=${query}`);
   }
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/change-password`, {
+    current_password: currentPassword,
+    new_password: newPassword
+  });
+}
 }

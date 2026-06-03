@@ -37,3 +37,16 @@
   h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
   p { color: #666; font-size: 14px; line-height: 1.5; }
 }
+.quick-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: -24px 0 32px;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+}
