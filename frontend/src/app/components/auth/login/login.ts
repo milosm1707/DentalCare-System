@@ -1,9 +1,58 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule
+  ],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
+  styleUrl: './login.scss'
 })
-export class Login {}
+export class Login {
+  email = '';
+  password = '';
+  loading = false;
+
+  constructor(
+      private authService: AuthService,
+      private router: Router,
+      private snackBar: MatSnackBar
+  ) {}
+
+  onSubmit(): void {
+    if (!this.email || !this.password) return;
+    this.loading = true;
+
+    this.authService.login(this.email, this.password).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.user.role === 'dentist') {
+          this.router.navigate(['/dentist/dashboard']);
+        } else {
+          this.router.navigate(['/patient/dashboard']);
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.snackBar.open('Pogrešan email ili lozinka', 'Zatvori', { duration: 3000 });
+      }
+    });
+  }
+}

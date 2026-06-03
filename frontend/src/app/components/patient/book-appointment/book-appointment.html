@@ -1,1 +1,66 @@
-<p>book-appointment works!</p>
+<div class="page">
+    <h1>Zakaži termin</h1>
+
+    <mat-card class="booking-card">
+        <mat-card-content>
+
+            <h3>1. Odaberite ambulantu</h3>
+            <div class="clinics-grid">
+                <mat-card
+                        *ngFor="let clinic of clinics"
+                        class="clinic-card"
+                        [class.selected]="selectedClinic?.id === clinic.id"
+                        (click)="selectedClinic = clinic; onClinicSelect()">
+                    <mat-icon color="primary">local_hospital</mat-icon>
+                    <h4>{{ clinic.name }}</h4>
+                    <p>{{ clinic.address }}</p>
+                    <small>{{ clinic.working_hours_start }} - {{ clinic.working_hours_end }}</small>
+                </mat-card>
+            </div>
+
+            <div *ngIf="selectedClinic">
+                <h3>2. Odaberite termin</h3>
+
+                <div *ngIf="loadingSlots" class="loading">
+                    <p>Učitavanje slobodnih termina...</p>
+                </div>
+
+                <div *ngIf="!loadingSlots && slots.length === 0" class="empty-slots">
+                    <mat-icon>event_busy</mat-icon>
+                    <p>Nema slobodnih termina za ovu ambulantu</p>
+                </div>
+
+                <div class="slots-grid" *ngIf="!loadingSlots && slots.length > 0">
+                    <div
+                            *ngFor="let slot of slots"
+                            class="slot"
+                            [class.selected]="selectedSlot === slot.id"
+                            (click)="selectedSlot = slot.id">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ slot.slot_date }}</span>
+                        <span>{{ slot.start_time }}</span>
+                        <small>{{ slot.duration === 'thirty' ? '30 min' : '60 min' }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="selectedSlot">
+                <h3>3. Napomena (opciono)</h3>
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Napomena za stomatologa</mat-label>
+                    <textarea matInput [(ngModel)]="notes" rows="3"></textarea>
+                </mat-form-field>
+            </div>
+
+        </mat-card-content>
+
+        <mat-card-actions>
+            <button
+                    mat-raised-button color="primary"
+                    [disabled]="!selectedSlot || loading"
+                    (click)="book()">
+                {{ loading ? 'Zakazivanje...' : 'Zakaži termin' }}
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</div>

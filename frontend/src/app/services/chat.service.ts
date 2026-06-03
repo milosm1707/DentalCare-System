@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -24,30 +24,91 @@ export class ChatService implements OnDestroy {
   private messageSubject = new Subject<any>();
   public messages$ = this.messageSubject.asObservable();
 
+  // Globalni unread count
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  public unreadCount$ = this.unreadCountSubject.asObservable();
+
   constructor(
-      private http: HttpClient,
-      private authService: AuthService
-  ) {}
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
+    // Učitaj sačuvani unread count
+    this.loadUnreadCount();
+
+    // Povežise čim se korisnik prijavi
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.connectWebSocket();
+      } else {
+        this.disconnectWebSocket();
+        this.unreadCountSubject.next(0);
+      }
+    });
+  }
+
+  private loadUnreadCount(): void {
+    const myId = this.authService.getCurrentUser()?.id;
+    if (!myId) return;
+    const saved = localStorage.getItem(`contacts_${myId}`);
+    if (saved) {
+      try {
+        const contacts = JSON.parse(saved);
+        const unread = contacts.filter((c: any) => c.unread).length;
+        this.unreadCountSubject.next(unread);
+      } catch {
+        this.unreadCountSubject.next(0);
+      }
+    }
+  }
+  private activeChatContactId: string | null = null;
+
+setActiveChatContact(id: string | null): void {
+  this.activeChatContactId = id;
+}
+
+getActiveChatContact(): string | null {
+  return this.activeChatContactId;
+}
+
+  incrementUnread(): void {
+    this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+  }
+
+  clearUnread(): void {
+    this.unreadCountSubject.next(0);
+  }
+
+  decrementUnread(): void {
+    const current = this.unreadCountSubject.value;
+    if (current > 0) {
+      this.unreadCountSubject.next(current - 1);
+    }
+  }
 
   connectWebSocket(): void {
-    const token = this.authService.getToken();
-    const wsUrl = `ws://localhost:3004/ws`;
+  // Ne pravi novu konekciju ako već postoji
+  if (this.socket?.readyState === WebSocket.OPEN ||
+      this.socket?.readyState === WebSocket.CONNECTING) return;
 
-    this.socket = new WebSocket(wsUrl);
+  const token = this.authService.getToken();
+  if (!token) return;
 
-    this.socket.onopen = () => {
-      console.log('WebSocket konekcija uspostavljena');
-    };
-
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.messageSubject.next(data);
-    };
-
-    this.socket.onclose = () => {
-      console.log('WebSocket zatvoren');
-    };
-  }
+  this.socket = new WebSocket(`ws://localhost:3004/ws?token=${token}`);
+  this.socket.onopen = () => console.log('WebSocket connected');
+  this.socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    this.messageSubject.next(data);
+  };
+  this.socket.onclose = () => {
+    console.log('WebSocket closed');
+    setTimeout(() => {
+      if (this.authService.isLoggedIn()) {
+        this.connectWebSocket();
+      }
+    }, 3000);
+  };
+  this.socket.onerror = (e) => console.error('WebSocket error', e);
+}
 
   sendWsMessage(receiverId: string, content: string): void {
     if (this.socket?.readyState === WebSocket.OPEN) {
@@ -73,6 +134,7 @@ export class ChatService implements OnDestroy {
 
   disconnectWebSocket(): void {
     this.socket?.close();
+    this.socket = null;
   }
 
   ngOnDestroy(): void {

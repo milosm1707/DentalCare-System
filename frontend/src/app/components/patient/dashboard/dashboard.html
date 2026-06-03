@@ -1,1 +1,63 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+    <div class="welcome-card">
+        <h1>Dobrodošli, {{ authService.getCurrentUser()?.first_name }}!</h1>
+        <p>Upravljajte vašim stomatološkim terminima na jednom mjestu.</p>
+    </div>
+
+    <div class="stats-row">
+        <mat-card class="stat-card">
+            <mat-icon color="primary">calendar_today</mat-icon>
+            <h2>{{ upcomingCount }}</h2>
+            <p>Predstojeći termini</p>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-icon color="accent">history</mat-icon>
+            <h2>{{ appointments.length }}</h2>
+            <p>Ukupno termina</p>
+        </mat-card>
+
+        <mat-card class="stat-card action-card" routerLink="/patient/book">
+            <mat-icon>add_circle</mat-icon>
+            <h2>Zakaži</h2>
+            <p>Novi termin</p>
+        </mat-card>
+    </div>
+
+    <div class="section">
+        <h2>Moji termini</h2>
+
+        <div *ngIf="loading" class="loading">
+            <p>Učitavanje...</p>
+        </div>
+
+        <div *ngIf="!loading && appointments.length === 0" class="empty">
+            <mat-icon>event_busy</mat-icon>
+            <p>Nemate zakazanih termina</p>
+            <a mat-raised-button color="primary" routerLink="/patient/book">
+                Zakaži prvi termin
+            </a>
+        </div>
+
+        <div class="appointments-grid" *ngIf="!loading && appointments.length > 0">
+            <mat-card *ngFor="let apt of appointments" class="appointment-card">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar color="primary">event</mat-icon>
+                    <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
+                    <mat-card-subtitle>{{ apt.start_time }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-chip [color]="getStatusColor(apt.status)" selected>
+                        {{ getStatusLabel(apt.status) }}
+                    </mat-chip>
+                    <p *ngIf="apt.notes" class="notes">{{ apt.notes }}</p>
+                </mat-card-content>
+                <mat-card-actions>
+                    <a mat-button color="primary" routerLink="/patient/appointments">
+                        Detalji
+                    </a>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+</div>

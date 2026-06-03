@@ -82,12 +82,12 @@ pub async fn create_slot(
 // Dohvati slobodne slotove za stomatologa
 pub async fn get_available_slots(
     State(state): State<AppState>,
-    Path(dentist_id): Path<Uuid>,
+    Path(clinic_id): Path<Uuid>,
 ) -> Result<Json<Vec<AvailableSlot>>, AppError> {
     let slots = sqlx::query_as::<_, AvailableSlot>(
-        "SELECT * FROM available_slots WHERE dentist_id = $1 AND is_available = true AND slot_date >= CURRENT_DATE ORDER BY slot_date, start_time"
+        "SELECT * FROM available_slots WHERE clinic_id = $1 AND is_available = true AND slot_date >= CURRENT_DATE ORDER BY slot_date, start_time"
     )
-        .bind(dentist_id)
+        .bind(clinic_id)
         .fetch_all(&state.db)
         .await?;
 

@@ -1,0 +1,49 @@
+.page { max-width: 1000px; margin: 0 auto; }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  h1 { font-size: 26px; font-weight: 700; color: #333; }
+  .actions { display: flex; gap: 12px; }
+}
+
+.form-card {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  padding: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.section {
+  h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #444; }
+}
+
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.clinic-card {
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  mat-icon { font-size: 36px; width: 36px; height: 36px; }
+  h3 { font-weight: 600; margin: 8px 0 4px; }
+  p { color: #666; font-size: 13px; }
+  small { color: #999; font-size: 12px; }
+}
+
+.empty {
+  text-align: center;
+  padding: 48px;
+  color: #999;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 8px; }
+}

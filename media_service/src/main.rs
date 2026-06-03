@@ -69,8 +69,9 @@ async fn main() {
     let protected = Router::new()
         .route("/upload", post(handlers::upload_file))
         .route("/files", get(handlers::get_my_files))
-        .route("/files/{id}/download", get(handlers::download_file))
-        .route("/pdf/{appointment_id}", post(handlers::generate_appointment_pdf))
+        // Mora biti ovako:
+        .route("/files/:id/download", get(handlers::download_file))
+        .route("/pdf/:appointment_id", post(handlers::generate_appointment_pdf))
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             auth_middleware,

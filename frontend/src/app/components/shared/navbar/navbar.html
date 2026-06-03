@@ -1,1 +1,50 @@
-<p>navbar works!</p>
+<mat-toolbar color="primary">
+  <span class="brand" routerLink="/home">🦷 DentaCare</span>
+
+  <span class="spacer"></span>
+
+  <ng-container *ngIf="user; else guestLinks">
+    <ng-container *ngIf="isPatient">
+      <a mat-button routerLink="/patient/dashboard">Dashboard</a>
+      <a mat-button routerLink="/patient/appointments">Moji termini</a>
+      <a mat-button routerLink="/patient/book">Zakaži termin</a>
+    </ng-container>
+
+    <ng-container *ngIf="isDentist">
+      <a mat-button routerLink="/dentist/dashboard">Dashboard</a>
+      <a mat-button routerLink="/dentist/appointments">Termini</a>
+      <a mat-button routerLink="/dentist/schedule">Raspored</a>
+    </ng-container>
+
+    <!-- Chat link sa badge-om -->
+    <a mat-button routerLink="/chat" class="chat-link">
+      <mat-icon
+        [matBadge]="unreadCount > 0 ? unreadCount : null"
+        matBadgeColor="warn"
+        matBadgeSize="small">
+        chat
+      </mat-icon>
+      Chat
+    </a>
+
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="user-info">
+        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <small>{{ user.email }}</small>
+      </div>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Odjavi se
+      </button>
+    </mat-menu>
+  </ng-container>
+
+  <ng-template #guestLinks>
+    <a mat-button routerLink="/login">Prijava</a>
+    <a mat-button routerLink="/register">Registracija</a>
+  </ng-template>
+</mat-toolbar>

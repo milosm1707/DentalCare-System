@@ -4,8 +4,8 @@ use sqlx::Type;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Type, Clone, PartialEq)]
-#[sqlx(type_name = "media_type", rename_all = "lowercase")]
-#[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "media_type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum MediaType {
     Xray,
     ProfileImage,

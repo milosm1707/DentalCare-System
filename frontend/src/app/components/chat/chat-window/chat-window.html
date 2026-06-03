@@ -1,1 +1,110 @@
-<p>chat-window works!</p>
+<div class="chat-page">
+    <!-- Lijeva kolona — kontakti -->
+    <mat-card class="contacts-panel">
+        <div class="contacts-header">
+            <h3>Poruke</h3>
+        </div>
+
+        <!-- Pretraga korisnika -->
+        <div class="search-box">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Pretraži korisnika</mat-label>
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Ime, prezime ili email" />
+            </mat-form-field>
+
+            <!-- Rezultati pretrage -->
+            <div class="search-results" *ngIf="searchResults.length > 0">
+                <div
+                        *ngFor="let user of searchResults"
+                        class="search-result-item"
+                        (click)="selectContact(user)">
+                    <div class="avatar">{{ user.first_name[0] }}{{ user.last_name[0] }}</div>
+                    <div class="info">
+                        <span class="name">{{ user.first_name }} {{ user.last_name }}</span>
+                        <span class="email">{{ user.email }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista kontakata -->
+        <div class="contacts-list">
+            <div
+                *ngFor="let contact of contacts"
+                class="contact-item"
+                [class.active]="activeContact?.id === contact.id"
+                [class.unread]="contact.unread"
+                (click)="openChat(contact)">
+                <div class="avatar" [class.avatar-unread]="contact.unread">
+                    {{ contact.first_name[0] }}{{ contact.last_name[0] }}
+                </div>
+                <div class="info">
+                    <span class="name" [class.name-unread]="contact.unread">
+                    {{ contact.first_name }} {{ contact.last_name }}
+                    </span>
+                    <span class="email">{{ contact.email }}</span>
+                </div>
+                <div class="unread-badge" *ngIf="contact.unread">
+                    <mat-icon>mark_chat_unread</mat-icon>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+
+    <!-- Desna kolona — poruke -->
+    <mat-card class="messages-panel">
+        <!-- Nema aktivnog chata -->
+        <div *ngIf="!activeContact" class="no-chat">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>Odaberite kontakt da započnete razgovor</p>
+        </div>
+
+        <!-- Aktivni chat -->
+        <ng-container *ngIf="activeContact">
+            <div class="chat-header">
+                <div class="avatar">{{ activeContact.first_name[0] }}{{ activeContact.last_name[0] }}</div>
+                <div class="info">
+                    <span class="name">{{ activeContact.first_name }} {{ activeContact.last_name }}</span>
+                    <span class="email">{{ activeContact.email }}</span>
+                </div>
+            </div>
+
+            <div class="messages">
+                <div *ngIf="loadingMessages" class="loading">
+                    <p>Učitavanje poruka...</p>
+                </div>
+
+                <div *ngIf="!loadingMessages && messages.length === 0" class="empty-chat">
+                    <p>Nema poruka. Pošaljite prvu poruku!</p>
+                </div>
+
+                <div
+                        *ngFor="let msg of messages"
+                        class="message"
+                        [class.mine]="isMyMessage(msg)"
+                        [class.theirs]="!isMyMessage(msg)">
+                    <div class="bubble">
+                        <p>{{ msg.content }}</p>
+                        <small>{{ msg.created_at | date:'HH:mm' }}</small>
+                    </div>
+                </div>
+
+                <div #messagesEnd></div>
+            </div>
+
+            <div class="input-area">
+                <mat-form-field appearance="outline" class="message-input">
+                    <input
+                            matInput
+                            [(ngModel)]="newMessage"
+                            (keyup.enter)="send()"
+                            placeholder="Unesite poruku..." />
+                </mat-form-field>
+                <button mat-fab color="primary" (click)="send()" [disabled]="!newMessage.trim()">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </ng-container>
+    </mat-card>
+</div>

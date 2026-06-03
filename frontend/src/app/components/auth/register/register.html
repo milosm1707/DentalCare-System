@@ -1,1 +1,60 @@
-<p>register works!</p>
+<div class="register-container">
+    <mat-card class="register-card">
+        <mat-card-header>
+            <mat-card-title>DentaCare</mat-card-title>
+            <mat-card-subtitle>Kreirajte novi nalog</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ime</mat-label>
+                        <input matInput [(ngModel)]="first_name" name="first_name" required />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Prezime</mat-label>
+                        <input matInput [(ngModel)]="last_name" name="last_name" required />
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" [(ngModel)]="email" name="email" required />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Lozinka</mat-label>
+                    <input matInput type="password" [(ngModel)]="password" name="password" required />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Telefon</mat-label>
+                    <input matInput [(ngModel)]="phone" name="phone" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Tip naloga</mat-label>
+                    <mat-select [(ngModel)]="role" name="role">
+                        <mat-option value="patient">Pacijent</mat-option>
+                        <mat-option value="dentist">Stomatolog</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <button
+                        mat-raised-button
+                        color="primary"
+                        type="submit"
+                        class="full-width"
+                        [disabled]="loading">
+                    {{ loading ? 'Registracija...' : 'Registruj se' }}
+                </button>
+            </form>
+        </mat-card-content>
+
+        <mat-card-actions>
+            <p>Već imate nalog? <a routerLink="/login">Prijavite se</a></p>
+        </mat-card-actions>
+    </mat-card>
+</div>

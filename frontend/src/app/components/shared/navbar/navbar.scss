@@ -1,0 +1,45 @@
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.user-info {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  p {
+    margin: 0;
+    font-weight: 600;
+  }
+  small {
+    color: #666;
+  }
+}
+
+a[mat-button] {
+  margin: 0 4px;
+}
+.chat-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}

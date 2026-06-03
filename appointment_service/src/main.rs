@@ -71,10 +71,10 @@ async fn main() {
     let protected = Router::new()
         .route("/clinics", post(handlers::create_clinic))
         .route("/slots", post(handlers::create_slot))
-        .route("/slots/{dentist_id}", get(handlers::get_available_slots))
+        .route("/slots/:clinic_id", get(handlers::get_available_slots))
         .route("/appointments", post(handlers::book_appointment))
         .route("/appointments/my", get(handlers::get_my_appointments))
-        .route("/appointments/{id}/cancel", delete(handlers::cancel_appointment))
+        .route("/appointments/:id/cancel", delete(handlers::cancel_appointment))
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             auth_middleware,

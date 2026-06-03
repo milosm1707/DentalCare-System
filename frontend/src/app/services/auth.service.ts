@@ -32,6 +32,9 @@ export class AuthService {
       this.currentUserSubject.next(JSON.parse(savedUser));
     }
   }
+  getUserById(id: string): Observable<User> {
+  return this.http.get<User>(`${this.apiUrl}/users/${id}`);
+  }
 
   register(data: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
@@ -74,5 +77,8 @@ export class AuthService {
     localStorage.setItem('refresh_token', res.refresh_token);
     localStorage.setItem('user', JSON.stringify(res.user));
     this.currentUserSubject.next(res.user);
+  }
+  searchUsers(query: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/search?q=${query}`);
   }
 }

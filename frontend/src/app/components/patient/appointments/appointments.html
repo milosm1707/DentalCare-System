@@ -1,1 +1,45 @@
-<p>appointments works!</p>
+<div class="page">
+    <div class="page-header">
+        <h1>Moji termini</h1>
+        <a mat-raised-button color="primary" routerLink="/patient/book">
+            <mat-icon>add</mat-icon> Zakaži novi
+        </a>
+    </div>
+
+    <div *ngIf="loading" class="loading"><p>Učitavanje...</p></div>
+
+    <div *ngIf="!loading && appointments.length === 0" class="empty">
+        <mat-icon>event_busy</mat-icon>
+        <p>Nemate zakazanih termina</p>
+        <a mat-raised-button color="primary" routerLink="/patient/book">Zakaži termin</a>
+    </div>
+
+    <div class="list" *ngIf="!loading && appointments.length > 0">
+        <mat-card *ngFor="let apt of appointments" class="apt-card">
+            <mat-card-header>
+                <mat-icon mat-card-avatar color="primary">event</mat-icon>
+                <mat-card-title>{{ apt.appointment_date }}</mat-card-title>
+                <mat-card-subtitle>{{ apt.start_time }} — trajanje: {{ apt.duration === 'thirty' ? '30 min' : '60 min' }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+                <mat-chip [color]="getStatusColor(apt.status)" selected>
+                    {{ getStatusLabel(apt.status) }}
+                </mat-chip>
+                <p *ngIf="apt.notes" class="notes">Napomena: {{ apt.notes }}</p>
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button mat-button color="primary" (click)="generatePdf(apt.id)">
+                    <mat-icon>picture_as_pdf</mat-icon> PDF potvrda
+                </button>
+                <button
+                        mat-button color="warn"
+                        *ngIf="apt.status === 'scheduled'"
+                        (click)="cancel(apt.id)">
+                    <mat-icon>cancel</mat-icon> Otkaži
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </div>
+</div>

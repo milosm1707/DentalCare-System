@@ -199,3 +199,46 @@ async fn save_refresh_token(
         .await?;
     Ok(())
 }
+pub async fn get_user_by_id(
+    State(state): State<AppState>,
+    axum::Extension(_claims): axum::Extension<Claims>,
+    axum::extract::Path(user_id): axum::extract::Path<uuid::Uuid>,
+) -> Result<Json<UserInfo>, AppError> {
+    let user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1 AND is_active = true"
+    )
+        .bind(user_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    Ok(Json(UserInfo {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+    }))
+}
+pub async fn search_users(
+    State(state): State<AppState>,
+    axum::Extension(_claims): axum::Extension<Claims>,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<Json<Vec<UserInfo>>, AppError> {
+    let query = params.get("q").cloned().unwrap_or_default();
+
+    let users = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1) AND is_active = true LIMIT 10"
+    )
+        .bind(format!("%{}%", query))
+        .fetch_all(&state.db)
+        .await?;
+
+    Ok(Json(users.into_iter().map(|u| UserInfo {
+        id: u.id,
+        email: u.email,
+        role: u.role,
+        first_name: u.first_name,
+        last_name: u.last_name,
+    }).collect()))
+}

@@ -1,1 +1,35 @@
-<p>login works!</p>
+<div class="login-container">
+    <mat-card class="login-card">
+        <mat-card-header>
+            <mat-card-title>DentaCare</mat-card-title>
+            <mat-card-subtitle>Prijavite se na vaš nalog</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" [(ngModel)]="email" name="email" required />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Lozinka</mat-label>
+                    <input matInput type="password" [(ngModel)]="password" name="password" required />
+                </mat-form-field>
+
+                <button
+                        mat-raised-button
+                        color="primary"
+                        type="submit"
+                        class="full-width"
+                        [disabled]="loading">
+                    {{ loading ? 'Prijava...' : 'Prijavi se' }}
+                </button>
+            </form>
+        </mat-card-content>
+
+        <mat-card-actions>
+            <p>Nemate nalog? <a routerLink="/register">Registrujte se</a></p>
+        </mat-card-actions>
+    </mat-card>
+</div>

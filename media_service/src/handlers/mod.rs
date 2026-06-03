@@ -138,40 +138,98 @@ pub async fn generate_appointment_pdf(
 ) -> Result<Json<MediaFile>, AppError> {
     let owner_id = Uuid::parse_str(&claims.sub).map_err(|_| AppError::InvalidToken)?;
     let upload_dir = state.config.upload_dir.clone();
+    let now = chrono::Utc::now();
+    let date_str = now.format("%d.%m.%Y").to_string();
+    let time_str = now.format("%H:%M").to_string();
+    let appointment_id_str = appointment_id.to_string();
+    let owner_id_str = owner_id.to_string();
 
-    // Generiši PDF u blocking threadu
     let (pdf_bytes, file_name, unique_name) = tokio::task::spawn_blocking(move || {
         use printpdf::*;
 
         let (doc, page1, layer1) = PdfDocument::new(
-            "Potvrda o terminu",
+            "DentaCare Potvrda",
             Mm(210.0),
             Mm(297.0),
             "Layer 1",
         );
 
-        let current_layer = doc.get_page(page1).get_layer(layer1);
+        let layer = doc.get_page(page1).get_layer(layer1);
+        let font_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
         let font = doc.add_builtin_font(BuiltinFont::Helvetica)?;
 
-        current_layer.use_text(
-            "DentaCare - Potvrda o zakazanom terminu",
-            24.0, Mm(20.0), Mm(270.0), &font,
-        );
-        current_layer.use_text(
-            &format!("ID termina: {}", appointment_id),
-            12.0, Mm(20.0), Mm(250.0), &font,
-        );
-        current_layer.use_text(
-            &format!("Pacijent ID: {}", owner_id),
-            12.0, Mm(20.0), Mm(235.0), &font,
-        );
-        current_layer.use_text(
-            "Molimo Vas da budete prisutni 10 minuta prije termina.",
-            12.0, Mm(20.0), Mm(220.0), &font,
-        );
+        // Header pozadina — plavi pravougaonik
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.add_rect(Rect::new(Mm(0.0), Mm(257.0), Mm(210.0), Mm(297.0)));
+
+        // Naziv klinike u headeru
+        layer.set_fill_color(Color::Rgb(Rgb::new(1.0, 1.0, 1.0, None)));
+        layer.use_text("DentaCare", 28.0, Mm(15.0), Mm(277.0), &font_bold);
+        layer.use_text("Stomatološka klinika", 12.0, Mm(15.0), Mm(270.0), &font);
+        layer.use_text("www.dentacare.rs  |  info@dentacare.rs  |  +381 21 555 000", 9.0, Mm(15.0), Mm(263.0), &font);
+
+        // Naslov dokumenta
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.use_text("POTVRDA O ZAKAZANOM TERMINU", 18.0, Mm(15.0), Mm(243.0), &font_bold);
+
+        // Linija ispod naslova
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.add_rect(Rect::new(Mm(15.0), Mm(239.0), Mm(195.0), Mm(240.0)));
+
+        // Datum izdavanja
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.4, 0.4, 0.4, None)));
+        layer.use_text(&format!("Datum izdavanja: {}  |  Vrijeme: {}", date_str, time_str), 9.0, Mm(15.0), Mm(234.0), &font);
+
+        // Sekcija: Informacije o terminu
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.95, 0.96, 0.98, None)));
+        layer.add_rect(Rect::new(Mm(15.0), Mm(190.0), Mm(195.0), Mm(228.0)));
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.use_text("INFORMACIJE O TERMINU", 11.0, Mm(20.0), Mm(222.0), &font_bold);
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.3, 0.3, 0.3, None)));
+        layer.use_text("ID Termina:", 10.0, Mm(20.0), Mm(215.0), &font_bold);
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.1, 0.1, 0.1, None)));
+        layer.use_text(&appointment_id_str, 10.0, Mm(65.0), Mm(215.0), &font);
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.3, 0.3, 0.3, None)));
+        layer.use_text("Status:", 10.0, Mm(20.0), Mm(207.0), &font_bold);
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.0, 0.6, 0.3, None)));
+        layer.use_text("ZAKAZANO", 10.0, Mm(65.0), Mm(207.0), &font_bold);
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.3, 0.3, 0.3, None)));
+        layer.use_text("Pacijent ID:", 10.0, Mm(20.0), Mm(199.0), &font_bold);
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.1, 0.1, 0.1, None)));
+        layer.use_text(&owner_id_str, 10.0, Mm(65.0), Mm(199.0), &font);
+
+        // Sekcija: Upute
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.use_text("UPUTE ZA PACIJENTA", 11.0, Mm(20.0), Mm(182.0), &font_bold);
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.1, 0.1, 0.1, None)));
+        layer.use_text("1.  Molimo Vas da budete prisutni najmanje 10 minuta prije zakazanog termina.", 10.0, Mm(20.0), Mm(174.0), &font);
+        layer.use_text("2.  Ponesite ličnu kartu ili pasoš.", 10.0, Mm(20.0), Mm(166.0), &font);
+        layer.use_text("3.  Ukoliko niste u mogućnosti doći, otkažite termin najmanje 24 sata unaprijed.", 10.0, Mm(20.0), Mm(158.0), &font);
+        layer.use_text("4.  Za sve informacije kontaktirajte nas na +381 21 555 000.", 10.0, Mm(20.0), Mm(150.0), &font);
+
+        // Sekcija: Napomena
+        layer.set_fill_color(Color::Rgb(Rgb::new(1.0, 0.95, 0.8, None)));
+        layer.add_rect(Rect::new(Mm(15.0), Mm(125.0), Mm(195.0), Mm(143.0)));
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.8, 0.5, 0.0, None)));
+        layer.use_text("NAPOMENA", 10.0, Mm(20.0), Mm(138.0), &font_bold);
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.3, 0.2, 0.0, None)));
+        layer.use_text("Ova potvrda je automatski generisana i važi kao dokaz zakazanog termina.", 9.0, Mm(20.0), Mm(131.0), &font);
+        layer.use_text("Čuvajte je do dana termina.", 9.0, Mm(20.0), Mm(127.0), &font);
+
+        // Footer linija
+        layer.set_fill_color(Color::Rgb(Rgb::new(0.243, 0.318, 0.710, None)));
+        layer.add_rect(Rect::new(Mm(0.0), Mm(15.0), Mm(210.0), Mm(17.0)));
+
+        layer.set_fill_color(Color::Rgb(Rgb::new(1.0, 1.0, 1.0, None)));
+        layer.use_text("DentaCare © 2026  |  Sva prava zadržana  |  www.dentacare.rs", 8.0, Mm(55.0), Mm(15.5), &font);
 
         let pdf_bytes = doc.save_to_bytes()?;
-        let file_name = format!("potvrda_{}.pdf", appointment_id);
+        let file_name = format!("potvrda_{}.pdf", appointment_id_str);
         let unique_name = format!("{}_{}", Uuid::new_v4(), file_name);
 
         Ok::<_, printpdf::Error>((pdf_bytes, file_name, unique_name))

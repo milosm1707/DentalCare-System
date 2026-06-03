@@ -1,1 +1,42 @@
-<p>home works!</p>
+<div class="home">
+    <div class="hero">
+        <h1>🦷 DentaCare</h1>
+        <p>Moderna platforma za upravljanje stomatološkim terminima</p>
+        <div class="hero-actions" *ngIf="!authService.isLoggedIn()">
+            <a mat-raised-button color="primary" routerLink="/register">Registrujte se</a>
+            <a mat-stroked-button routerLink="/login">Prijavite se</a>
+        </div>
+        <div class="hero-actions" *ngIf="authService.isLoggedIn()">
+            <a mat-raised-button color="primary"
+               [routerLink]="authService.getRole() === 'dentist' ? '/dentist/dashboard' : '/patient/dashboard'">
+                Idi na dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="features">
+        <mat-card class="feature-card">
+            <mat-icon color="primary">calendar_today</mat-icon>
+            <h3>Lako zakazivanje</h3>
+            <p>Zakažite stomatološki pregled u samo nekoliko klikova</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon color="accent">chat</mat-icon>
+            <h3>Real-time chat</h3>
+            <p>Komunicirajte sa stomatologom direktno kroz aplikaciju</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon color="warn">picture_as_pdf</mat-icon>
+            <h3>PDF potvrde</h3>
+            <p>Automatski generirajte potvrde o zakazanim terminima</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon style="color: #11998e">image</mat-icon>
+            <h3>RTG snimci</h3>
+            <p>Sigurno uploadujte i pregledajte RTG snimke</p>
+        </mat-card>
+    </div>
+</div>

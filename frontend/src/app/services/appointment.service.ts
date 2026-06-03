@@ -52,8 +52,8 @@ export class AppointmentService {
     return this.http.post<Clinic>(`${this.apiUrl}/clinics`, data);
   }
 
-  getAvailableSlots(dentistId: string): Observable<Slot[]> {
-    return this.http.get<Slot[]>(`${this.apiUrl}/slots/${dentistId}`);
+  getAvailableSlots(clinicId: string): Observable<Slot[]> {
+    return this.http.get<Slot[]>(`${this.apiUrl}/slots/${clinicId}`);
   }
 
   createSlot(data: any): Observable<Slot> {

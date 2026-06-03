@@ -1,1 +1,112 @@
-<p>schedule works!</p>
+<div class="page">
+    <div class="page-header">
+        <h1>Upravljanje rasporedom</h1>
+        <div class="actions">
+            <button mat-raised-button color="primary" (click)="showClinicForm = !showClinicForm">
+                <mat-icon>add</mat-icon> Nova ambulanta
+            </button>
+            <button mat-raised-button color="accent" (click)="showSlotForm = !showSlotForm" [disabled]="clinics.length === 0">
+                <mat-icon>schedule</mat-icon> Dodaj termin
+            </button>
+        </div>
+    </div>
+
+    <!-- Forma za ambulantu -->
+    <mat-card *ngIf="showClinicForm" class="form-card">
+        <mat-card-header>
+            <mat-card-title>Nova ambulanta</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="form-grid">
+                <mat-form-field appearance="outline">
+                    <mat-label>Naziv ambulante</mat-label>
+                    <input matInput [(ngModel)]="clinicForm.name" required />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Adresa</mat-label>
+                    <input matInput [(ngModel)]="clinicForm.address" required />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Telefon</mat-label>
+                    <input matInput [(ngModel)]="clinicForm.phone" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Početak radnog vremena</mat-label>
+                    <input matInput [(ngModel)]="clinicForm.working_hours_start" placeholder="08:00:00" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Kraj radnog vremena</mat-label>
+                    <input matInput [(ngModel)]="clinicForm.working_hours_end" placeholder="16:00:00" />
+                </mat-form-field>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="createClinic()" [disabled]="loadingClinic">
+                {{ loadingClinic ? 'Kreiranje...' : 'Kreiraj ambulantu' }}
+            </button>
+            <button mat-button (click)="showClinicForm = false">Otkaži</button>
+        </mat-card-actions>
+    </mat-card>
+
+    <!-- Forma za slot -->
+    <mat-card *ngIf="showSlotForm" class="form-card">
+        <mat-card-header>
+            <mat-card-title>Dodaj slobodan termin</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="form-grid">
+                <mat-form-field appearance="outline">
+                    <mat-label>Ambulanta</mat-label>
+                    <mat-select [(ngModel)]="slotForm.clinic_id" name="clinic_id">
+                        <mat-option *ngFor="let c of clinics" [value]="c.id">{{ c.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Datum</mat-label>
+                    <input matInput type="date" [(ngModel)]="slotForm.slot_date" name="slot_date" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Početak termina</mat-label>
+                    <input matInput [(ngModel)]="slotForm.start_time" name="start_time" placeholder="09:00:00" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Trajanje</mat-label>
+                    <mat-select [(ngModel)]="slotForm.duration" name="duration">
+                        <mat-option value="thirty">30 minuta</mat-option>
+                        <mat-option value="sixty">60 minuta</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="accent" (click)="createSlot()" [disabled]="loadingSlot">
+                {{ loadingSlot ? 'Dodavanje...' : 'Dodaj termin' }}
+            </button>
+            <button mat-button (click)="showSlotForm = false">Otkaži</button>
+        </mat-card-actions>
+    </mat-card>
+
+    <!-- Lista ambulanti -->
+    <div class="section">
+        <h2>Moje ambulante</h2>
+        <div *ngIf="clinics.length === 0" class="empty">
+            <mat-icon>local_hospital</mat-icon>
+            <p>Nemate kreiranih ambulanti</p>
+        </div>
+        <div class="clinics-grid" *ngIf="clinics.length > 0">
+            <mat-card *ngFor="let clinic of clinics" class="clinic-card">
+                <mat-icon color="primary">local_hospital</mat-icon>
+                <h3>{{ clinic.name }}</h3>
+                <p>{{ clinic.address }}</p>
+                <small>{{ clinic.working_hours_start }} - {{ clinic.working_hours_end }}</small>
+            </mat-card>
+        </div>
+    </div>
+</div>
