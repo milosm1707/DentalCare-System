@@ -80,6 +80,7 @@ async fn main() {
         .route("/reviews/admin", get(handlers::get_all_reviews_admin))
         .route("/clinics/my", get(handlers::get_my_clinics))
         .route("/appointments/:id/confirm", post(handlers::confirm_appointment))
+        .route("/admin/stats", get(handlers::get_appointment_stats))
         .route("/reviews/:id/approve", post(handlers::approve_review))
         .route("/reviews/:id/reject", post(handlers::reject_review))
         .layer(axum::middleware::from_fn_with_state(

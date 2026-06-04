@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,8 @@ export class Login {
   constructor(
       private authService: AuthService,
       private router: Router,
-      private snackBar: MatSnackBar
+      private snackBar: MatSnackBar,
+      private cdr: ChangeDetectorRef
   ) {}
 
   onSubmit(): void {
@@ -43,8 +45,11 @@ export class Login {
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
         this.loading = false;
+        this.cdr.detectChanges();
         if (res.user.role === 'dentist') {
           this.router.navigate(['/dentist/dashboard']);
+        } else if (res.user.role === 'admin') {
+          this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/patient/dashboard']);
         }

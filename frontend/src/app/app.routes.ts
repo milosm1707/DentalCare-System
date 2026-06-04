@@ -30,6 +30,12 @@ export const routes: Routes = [
             import('./components/shared/education/education').then(m => m.Education)
     },
     {
+        path: 'admin',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./components/admin/dashboard/dashboard').then(m => m.AdminDashboard)
+    },
+    {
         path: 'profile',
         canActivate: [authGuard],
         loadComponent: () =>

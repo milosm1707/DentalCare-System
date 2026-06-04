@@ -115,4 +115,18 @@ getMyClinics(): Observable<Clinic[]> {
 confirmAppointment(id: string): Observable<Appointment> {
   return this.http.post<Appointment>(`${this.apiUrl}/appointments/${id}/confirm`, {});
 }
+getAppointmentStats(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/admin/stats`);
+}
+getPendingReviews(): Observable<Review[]> {
+  return this.http.get<Review[]>(`${this.apiUrl}/reviews/admin`);
+}
+
+approveReview(id: string): Observable<Review> {
+  return this.http.post<Review>(`${this.apiUrl}/reviews/${id}/approve`, {});
+}
+
+rejectReview(id: string): Observable<Review> {
+  return this.http.post<Review>(`${this.apiUrl}/reviews/${id}/reject`, {});
+}
 }

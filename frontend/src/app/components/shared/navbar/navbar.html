@@ -24,6 +24,13 @@
 
     </ng-container>
 
+    <ng-container *ngIf="isAdmin">
+      <a mat-button routerLink="/admin">
+        <mat-icon>admin_panel_settings</mat-icon>
+        Admin panel
+      </a>
+    </ng-container>
+
     <a mat-button routerLink="/chat" class="chat-link">
       <mat-icon
         [matBadge]="unreadCount > 0 ? unreadCount : null"

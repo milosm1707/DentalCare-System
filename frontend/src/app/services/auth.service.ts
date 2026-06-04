@@ -112,4 +112,44 @@ updateLocalUser(user: User): void {
   localStorage.setItem('user', JSON.stringify(user));
   this.currentUserSubject.next(user);
 }
+// Admin metode
+getAdminStats(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/admin/stats`);
+}
+
+getAllUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/admin/users`);
+}
+
+blockUserAdmin(userId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/users/${userId}/block`, {});
+}
+
+unblockUserAdmin(userId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/users/${userId}/unblock`, {});
+}
+
+deleteUserAdmin(userId: string): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/admin/users/${userId}`);
+}
+
+getAllArticlesAdmin(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/admin/articles`);
+}
+
+createArticle(data: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/articles`, data);
+}
+
+deleteArticle(id: string): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/admin/articles/${id}`);
+}
+
+toggleArticle(id: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/articles/${id}/toggle`, {});
+}
+
+getArticles(): Observable<any[]> {
+  return this.http.get<any[]>(`${environment.apiUrl}/articles`);
+}
 }

@@ -54,4 +54,7 @@ export class Navbar implements OnInit {
   get isDentist(): boolean {
     return this.user?.role === 'dentist';
   }
+  get isAdmin(): boolean {
+  return this.user?.role === 'admin';
+}
 }

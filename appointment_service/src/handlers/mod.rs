@@ -101,6 +101,42 @@ pub async fn confirm_appointment(
 
     Ok(Json(updated))
 }
+
+pub async fn get_appointment_stats(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<Claims>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    if claims.role != "admin" {
+        return Err(AppError::Forbidden);
+    }
+
+    let total = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM appointments")
+        .fetch_one(&state.db).await?;
+
+    let scheduled = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM appointments WHERE status = 'scheduled'"
+    ).fetch_one(&state.db).await?;
+
+    let confirmed = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM appointments WHERE status = 'confirmed'"
+    ).fetch_one(&state.db).await?;
+
+    let cancelled = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM appointments WHERE status = 'cancelled'"
+    ).fetch_one(&state.db).await?;
+
+    let total_clinics = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM clinics")
+        .fetch_one(&state.db).await?;
+
+    Ok(Json(serde_json::json!({
+        "total_appointments": total,
+        "scheduled": scheduled,
+        "confirmed": confirmed,
+        "cancelled": cancelled,
+        "total_clinics": total_clinics,
+    })))
+}
+
 // Kreiranje slobodnog slota (samo stomatolog)
 pub async fn create_slot(
     State(state): State<AppState>,

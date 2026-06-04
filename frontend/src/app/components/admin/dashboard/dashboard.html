@@ -1,0 +1,221 @@
+<div class="admin-page">
+  <div class="admin-header">
+    <h1>🛡️ Admin Panel</h1>
+    <p>Upravljanje DentaCare sistemom</p>
+  </div>
+
+  <!-- Statistike -->
+  <div class="stats-grid" *ngIf="!loading">
+    <mat-card class="stat-card blue">
+      <mat-icon>people</mat-icon>
+      <h2>{{ authStats.total_users || 0 }}</h2>
+      <p>Ukupno korisnika</p>
+    </mat-card>
+    <mat-card class="stat-card green">
+      <mat-icon>person</mat-icon>
+      <h2>{{ authStats.total_patients || 0 }}</h2>
+      <p>Pacijenata</p>
+    </mat-card>
+    <mat-card class="stat-card teal">
+      <mat-icon>medical_services</mat-icon>
+      <h2>{{ authStats.total_dentists || 0 }}</h2>
+      <p>Stomatologa</p>
+    </mat-card>
+    <mat-card class="stat-card purple">
+      <mat-icon>calendar_today</mat-icon>
+      <h2>{{ appointmentStats.total_appointments || 0 }}</h2>
+      <p>Ukupno termina</p>
+    </mat-card>
+    <mat-card class="stat-card orange">
+      <mat-icon>local_hospital</mat-icon>
+      <h2>{{ appointmentStats.total_clinics || 0 }}</h2>
+      <p>Ambulanti</p>
+    </mat-card>
+    <mat-card class="stat-card red">
+      <mat-icon>cancel</mat-icon>
+      <h2>{{ appointmentStats.cancelled || 0 }}</h2>
+      <p>Otkazanih termina</p>
+    </mat-card>
+  </div>
+
+  <mat-tab-group>
+
+    <!-- Tab: Korisnici -->
+    <mat-tab label="Korisnici">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2>Upravljanje korisnicima</h2>
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Pretraži korisnike</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="userSearch" (input)="onUserSearch()" />
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="loadingUsers" class="loading"><p>Učitavanje...</p></div>
+
+        <div class="users-list" *ngIf="!loadingUsers">
+          <mat-card *ngFor="let user of filteredUsers" class="user-card"
+            [class.inactive]="!user.is_active">
+            <div class="user-info">
+              <div class="user-avatar">{{ user.first_name[0] }}{{ user.last_name[0] }}</div>
+              <div class="user-details">
+                <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+                <span class="user-email">{{ user.email }}</span>
+                <div class="user-badges">
+                  <mat-chip color="primary" selected>{{ getRoleLabel(user.role) }}</mat-chip>
+                  <mat-chip [color]="user.is_active ? 'accent' : 'warn'" selected>
+                    {{ user.is_active ? 'Aktivan' : 'Blokiran' }}
+                  </mat-chip>
+                </div>
+              </div>
+            </div>
+            <div class="user-actions">
+              <button mat-icon-button color="warn"
+                *ngIf="user.is_active && user.role !== 'admin'"
+                (click)="blockUser(user.id)"
+                title="Blokiraj">
+                <mat-icon>block</mat-icon>
+              </button>
+              <button mat-icon-button color="primary"
+                *ngIf="!user.is_active"
+                (click)="unblockUser(user.id)"
+                title="Deblokiraj">
+                <mat-icon>lock_open</mat-icon>
+              </button>
+              <button mat-icon-button color="warn"
+                *ngIf="user.role !== 'admin'"
+                (click)="deleteUser(user.id)"
+                title="Obriši">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Tab: Recenzije -->
+    <mat-tab label="Recenzije na čekanju">
+      <div class="tab-content">
+        <h2>Recenzije koje čekaju odobrenje</h2>
+
+        <div *ngIf="loadingReviews" class="loading"><p>Učitavanje...</p></div>
+
+        <div *ngIf="!loadingReviews && reviews.length === 0" class="empty">
+          <mat-icon>check_circle</mat-icon>
+          <p>Nema recenzija na čekanju</p>
+        </div>
+
+        <div class="reviews-list" *ngIf="!loadingReviews && reviews.length > 0">
+          <mat-card *ngFor="let review of reviews" class="review-card">
+            <mat-card-content>
+              <div class="review-stars">
+                <mat-icon *ngFor="let s of getStars(review.rating)"
+                  style="color:#f59e0b">star</mat-icon>
+              </div>
+              <p *ngIf="review.comment" class="review-comment">"{{ review.comment }}"</p>
+              <small>{{ review.created_at | date:'dd.MM.yyyy' }}</small>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="approveReview(review.id)">
+                <mat-icon>check</mat-icon> Odobri
+              </button>
+              <button mat-button color="warn" (click)="rejectReview(review.id)">
+                <mat-icon>close</mat-icon> Odbij
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Tab: Edukativni sadržaj -->
+    <mat-tab label="Edukativni sadržaj">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2>Edukativni članci</h2>
+          <button mat-raised-button color="primary" (click)="showArticleForm = !showArticleForm">
+            <mat-icon>add</mat-icon> Novi članak
+          </button>
+        </div>
+
+        <!-- Forma za novi članak -->
+        <mat-card *ngIf="showArticleForm" class="article-form">
+          <mat-card-header>
+            <mat-card-title>Novi edukativni članak</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-grid">
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Naslov *</mat-label>
+                <input matInput [(ngModel)]="newArticle.title" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Kategorija</mat-label>
+                <mat-select [(ngModel)]="newArticle.category">
+                  <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Ikona</mat-label>
+                <mat-select [(ngModel)]="newArticle.icon">
+                  <mat-option *ngFor="let i of icons" [value]="i">{{ i }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Kratki opis *</mat-label>
+                <textarea matInput [(ngModel)]="newArticle.summary" rows="2"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Sadržaj (svaka stavka u novom redu) *</mat-label>
+                <textarea matInput [(ngModel)]="newArticle.content" rows="6"
+                  placeholder="Stavka 1&#10;Stavka 2&#10;Stavka 3"></textarea>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="createArticle()">
+              Kreiraj članak
+            </button>
+            <button mat-button (click)="showArticleForm = false">Otkaži</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Lista članaka -->
+        <div *ngIf="loadingArticles" class="loading"><p>Učitavanje...</p></div>
+
+        <div class="articles-list" *ngIf="!loadingArticles">
+          <mat-card *ngFor="let article of articles" class="article-card"
+            [class.unpublished]="!article.is_published">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>{{ article.icon }}</mat-icon>
+              <mat-card-title>{{ article.title }}</mat-card-title>
+              <mat-card-subtitle>{{ article.category }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ article.summary }}</p>
+              <mat-chip [color]="article.is_published ? 'primary' : 'warn'" selected>
+                {{ article.is_published ? 'Objavljeno' : 'Skriveno' }}
+              </mat-chip>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button (click)="toggleArticle(article.id)">
+                <mat-icon>{{ article.is_published ? 'visibility_off' : 'visibility' }}</mat-icon>
+                {{ article.is_published ? 'Sakrij' : 'Objavi' }}
+              </button>
+              <button mat-button color="warn" (click)="deleteArticle(article.id)">
+                <mat-icon>delete</mat-icon> Obriši
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>
